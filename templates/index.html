@@ -375,7 +375,7 @@
     }
 
     function copyImageUrl(button) {
-        const url = button.dataset.url;
+        const url = button.dataset.url.replace('http://', 'https://');
         navigator.clipboard.writeText(url).then(() => {
             const icon = button.querySelector('i');
             icon.className = 'fas fa-check';
