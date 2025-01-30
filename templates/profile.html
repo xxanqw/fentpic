@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-4">
+        <div class="card profile-card">
+            <div class="card-body text-center">
+                <div class="avatar-container">
+                    <form action="{{ url_for('change_avatar') }}" method="post" enctype="multipart/form-data" id="avatarForm">
+                        <input type="file" name="avatar" id="avatarInput" accept=".jpg,.jpeg,.png,.gif,.webp" hidden>
+                        {% if user.avatar_url %}
+                        <img src="{{ url_for('static', filename=user.avatar_url) }}" class="profile-avatar" alt="Avatar">
+                        {% else %}
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.id }}" class="profile-avatar" alt="Avatar">
+                        {% endif %}
+                        <div class="avatar-overlay">
+                            <i class="fas fa-camera"></i>
+                            <span>Змінити аватар</span>
+                        </div>
+                    </form>
+                </div>
+                <h3 class="mt-3">{{ user.username }}</h3>
+                <button class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                    <i class="fas fa-key"></i> Змінити пароль
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="passwordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Зміна пароля</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('change_password') }}" method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Поточний пароль</label>
+                        <input type="password" name="current_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Новий пароль</label>
+                        <input type="password" name="new_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Підтвердження пароля</label>
+                        <input type="password" name="confirm_password" class="form-control" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px var(--shadow-color);
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+        cursor: pointer;
+    }
+
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border: 3px solid var(--primary-color);
+        transition: filter 0.3s;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+
+    .avatar-container:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .avatar-container:hover .profile-avatar {
+        filter: blur(2px);
+    }
+
+    .avatar-overlay i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-content {
+        background-color: var(--card-bg);
+        color: var(--text-primary);
+    }
+
+    .modal-header,
+    .modal-footer {
+        border-color: var(--border-color);
+    }
+
+    .modal-header .btn-close {
+        filter: invert(1);
+        opacity: 0.7;
+    }
+
+    .modal .form-control {
+        background-color: var(--input-bg);
+        border-color: var(--border-color);
+        color: var(--input-text);
+    }
+
+    .modal .form-control:focus {
+        background-color: var(--input-bg);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25);
+    }
+
+    .modal .form-label {
+        color: var(--text-primary);
+    }
+
+    .modal .btn-secondary {
+        background-color: var(--bg-secondary);
+        border-color: var(--border-color);
+        color: var(--text-primary);
+    }
+
+    .modal .btn-secondary:hover {
+        background-color: var(--border-color);
+    }
+</style>
+
+<script>
+    document.querySelector('.avatar-container').addEventListener('click', function() {
+        document.getElementById('avatarInput').click();
+    });
+
+    document.getElementById('avatarInput').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            document.getElementById('avatarForm').submit();
+        }
+    });
+</script>
+{% endblock %}

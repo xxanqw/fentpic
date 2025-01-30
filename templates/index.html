@@ -1,0 +1,591 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="upload-container mb-4">
+    <div class="col-md-6 mx-auto">
+        <div class="upload-card" id="dropZone">
+            <div class="upload-content" id="uploadContent">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h5>Перетягніть свої зображення сюди</h5>
+                <p class="text-muted">або</p>
+                <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                    <label class="upload-button">
+                        <span>Вибрати файли</span>
+                        <input type="file" name="file" accept=".jpg,.jpeg,.png,.gif,.webp" hidden id="fileInput"
+                            multiple>
+                    </label>
+                </form>
+                <p class="upload-hint">Підтримуються: JPG, PNG, GIF, WEBP</p>
+            </div>
+
+            <div class="preview-content" id="previewContent" style="display: none;">
+                <div class="preview-grid" id="previewGrid"></div>
+                <div class="preview-actions">
+                    <button class="btn btn-outline-secondary" id="cancelUpload">
+                        <i class="fas fa-times"></i> Скасувати
+                    </button>
+                    <button type="submit" form="uploadForm" class="btn btn-gradient">
+                        <i class="fas fa-upload"></i> Завантажити (<span id="fileCount">0</span>)
+                    </button>
+                </div>
+            </div>
+            <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+                <div class="spinner"></div>
+                <p>Завантаження файлів...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="masonry-grid" id="imageGrid">
+    {% for image in images %}
+    <div class="masonry-item">
+        <div class="card">
+            <div class="card-img-wrapper">
+                <img src="{{ url_for('static', filename='uploads/' + image.filename) }}" class="card-img"
+                    alt="Завантажене зображення" loading="lazy" onload="handleImageLoad(this)">
+                <button class="btn-copy" onclick="copyImageUrl(this)"
+                    data-url="{{ url_for('static', filename='uploads/' + image.filename, _external=True) }}"
+                    title="Скопіювати URL зображення">
+                    <i class="fas fa-link"></i>
+                </button>
+            </div>
+            <div class="card-overlay">
+                <p class="timestamp">
+                    <i class="far fa-clock"></i>
+                    {{ image.uploaded_at|format_datetime }}
+                </p>
+                <a href="#" class="btn btn-danger btn-sm"
+                    data-delete-url="{{ url_for('delete_image', image_id=image.id) }}">
+                    <i class="fas fa-trash"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Ви впевнені, що хочете видалити це зображення?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <a href="#" class="btn btn-danger" id="confirmDelete">Видалити</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .upload-card {
+        border-radius: 1rem;
+        background: var(--card-bg);
+        padding: 2rem;
+        text-align: center;
+        border: 2px dashed var(--border-color);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 6px var(--shadow-color);
+        color: var(--text-primary);
+    }
+
+    .upload-card.dragover {
+        border-color: var(--primary-color);
+        background: var(--bg-secondary);
+        transform: scale(1.02);
+    }
+
+    .upload-icon {
+        font-size: 3.5rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+    }
+
+    .upload-button {
+        display: inline-block;
+        padding: 0.8rem 2rem;
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-radius: 2rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    .upload-hint {
+        color: var(--text-secondary);
+        margin-top: 1rem;
+    }
+
+    .preview-content {
+        padding: 1rem;
+        background: var(--bg-secondary);
+        border-radius: 0.5rem;
+    }
+
+    #imagePreview {
+        max-height: 200px;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 4px var(--shadow-color);
+    }
+
+    .btn-gradient {
+        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border: none;
+    }
+
+    .btn-gradient:hover {
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px var(--shadow-color);
+    }
+
+    .preview-content {
+        padding: 1rem;
+    }
+
+    .preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .preview-item {
+        position: relative;
+        aspect-ratio: 1;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-item .remove-preview {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+    }
+
+    #imagePreview {
+        max-height: 200px;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .masonry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-auto-rows: 250px;
+        grid-auto-flow: dense;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .masonry-item {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .masonry-item.loaded {
+        opacity: 1;
+    }
+
+    .masonry-item.wide {
+        grid-column: span 2;
+    }
+
+    .masonry-item.tall {
+        grid-row: span 2;
+    }
+
+    .masonry-item.large {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+
+    /* Стилі картки */
+    .card {
+        height: 100%;
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-img-wrapper {
+        height: 100%;
+        width: 100%;
+        position: relative;
+    }
+
+    .card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-img {
+        transform: scale(1.05);
+    }
+
+    .btn-copy {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        border: none;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        color: white;
+        cursor: pointer;
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card:hover .btn-copy {
+        opacity: 1;
+    }
+
+    .card-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 1;
+    }
+
+    .card:hover .card-overlay {
+        opacity: 1;
+    }
+
+    .timestamp {
+        color: white;
+        margin: 0;
+    }
+
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        border-radius: 1rem;
+        z-index: 100;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid var(--primary-color);
+        border-top: 5px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .modal-content {
+        background: var(--card-bg);
+        color: var(--text-primary);
+        border: none;
+        border-radius: 1rem;
+    }
+
+    .modal-header {
+        border-bottom-color: var(--border-color);
+    }
+
+    .modal-footer {
+        border-top-color: var(--border-color);
+    }
+</style>
+
+<script>
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+
+    function handleImageLoad(img) {
+        const item = img.closest('.masonry-item');
+        if (item) {
+            const className = getImageClass(img);
+            if (className) item.classList.add(className);
+            item.classList.add('loaded');
+        }
+    }
+
+    function getImageClass(img) {
+        const ratio = img.naturalWidth / img.naturalHeight;
+        if (ratio > 1.7) return 'wide';
+        if (ratio < 0.7) return 'tall';
+        if (img.naturalWidth > 2000 || img.naturalHeight > 2000) return 'large';
+        return '';
+    }
+
+    function copyImageUrl(button) {
+        const url = button.dataset.url;
+        navigator.clipboard.writeText(url).then(() => {
+            const icon = button.querySelector('i');
+            icon.className = 'fas fa-check';
+            setTimeout(() => {
+                icon.className = 'fas fa-link';
+            }, 2000);
+        });
+    }
+
+    function removePreview(button) {
+        const item = button.closest('.preview-item');
+        const index = Array.from(item.parentNode.children).indexOf(item);
+
+        const newFiles = new DataTransfer();
+        Array.from(fileInput.files).forEach((file, i) => {
+            if (i !== index) newFiles.items.add(file);
+        });
+
+        fileInput.files = newFiles.files;
+        document.getElementById('fileCount').textContent = newFiles.files.length;
+        item.remove();
+
+        if (newFiles.files.length === 0) {
+            uploadContent.style.display = 'block';
+            previewContent.style.display = 'none';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadContent = document.getElementById('uploadContent');
+        const previewContent = document.getElementById('previewContent');
+        const cancelUpload = document.getElementById('cancelUpload');
+        const uploadForm = document.getElementById('uploadForm');
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function highlight() {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight() {
+            dropZone.classList.remove('dragover');
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function isValidImage(file) {
+            const extension = '.' + file.name.split('.').pop().toLowerCase();
+            return ALLOWED_TYPES.includes(file.type) && ALLOWED_EXTENSIONS.includes(extension);
+        }
+
+
+        function handleFiles(files) {
+            const previewGrid = document.getElementById('previewGrid');
+            let validFiles = new DataTransfer();
+            let invalidCount = 0;
+            
+            previewGrid.innerHTML = '';
+            
+            const uniqueFiles = new Set();
+            
+            Array.from(files).forEach(file => {
+                const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
+                
+                if (!uniqueFiles.has(fileKey) && isValidImage(file)) {
+                    uniqueFiles.add(fileKey);
+                    validFiles.items.add(file);
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'preview-item';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" alt="Попередній перегляд">
+                            <button class="remove-preview" onclick="removePreview(this)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        previewGrid.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                } else if (!isValidImage(file)) {
+                    invalidCount++;
+                }
+            });
+
+            fileInput.files = validFiles.files;
+            const validCount = validFiles.files.length;
+            document.getElementById('fileCount').textContent = validCount;
+
+            if (validCount > 0) {
+                uploadContent.style.display = 'none';
+                previewContent.style.display = 'block';
+            } else {
+                uploadContent.style.display = 'block';
+                previewContent.style.display = 'none';
+            }
+
+            if (invalidCount > 0) {
+                flash(`${invalidCount} файл(ів) пропущено. Підтримуються лише зображення (JPG, PNG, GIF, WEBP)`, 'warning');
+            }
+        }
+
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            const dt = e.dataTransfer;
+            handleFiles(dt.files);
+            unhighlight();
+        });
+
+
+        fileInput.addEventListener('change', function () {
+            handleFiles(this.files);
+        });
+
+        cancelUpload.addEventListener('click', function () {
+            fileInput.value = '';
+
+            const previewGrid = document.getElementById('previewGrid');
+            if (previewGrid) {
+                previewGrid.innerHTML = '';
+            }
+
+            document.getElementById('fileCount').textContent = '0';
+
+            uploadContent.style.display = 'block';
+            previewContent.style.display = 'none';
+
+            dropZone.classList.remove('dragover');
+        });
+
+        uploadForm.addEventListener('submit', function (e) {
+            if (!fileInput.files || !fileInput.files[0]) {
+                e.preventDefault();
+                flash('Будь ласка, виберіть файл для завантаження', 'danger');
+                return;
+            }
+
+            window.scrollTo({
+                top: 0,
+                behavior: 'instant'
+            });
+
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+
+            cancelUpload.disabled = true;
+            uploadForm.querySelector('button[type="submit"]').disabled = true;
+        });
+
+        function flash(message, type) {
+            const flashDiv = document.createElement('div');
+            flashDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            flashDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+            document.querySelector('.upload-container').insertAdjacentElement('beforebegin', flashDiv);
+            setTimeout(() => flashDiv.remove(), 5000);
+        }
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+
+        document.querySelectorAll('[data-delete-url]').forEach(button => {
+            button.addEventListener('click', function (e) {
+                e.preventDefault();
+                confirmDeleteBtn.href = this.getAttribute('data-delete-url');
+                deleteModal.show();
+            });
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const grid = document.querySelector('#imageGrid');
+        const images = grid.querySelectorAll('img');
+
+        images.forEach(img => {
+            if (img.complete) {
+                handleImageLoad(img);
+            } else {
+                img.addEventListener('load', () => handleImageLoad(img));
+            }
+        });
+    });
+
+    if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(registration => {
+                    console.log('Service Worker registered');
+                })
+                .catch(error => {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
+</script>
+{% endblock %}

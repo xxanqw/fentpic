@@ -1,0 +1,4 @@
+.venv
+database.db
+static/uploads
+.env

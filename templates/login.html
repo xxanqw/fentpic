@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Вхід{% endblock %}
+{% block content %}
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#login-tab">
+                                <i class="fas fa-sign-in-alt"></i> Вхід
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#register-tab">
+                                <i class="fas fa-user-plus"></i> Реєстрація
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body tab-content">
+                    <div class="tab-pane fade show active" id="login-tab">
+                        <form action="{{ url_for('login') }}" method="post" id="loginForm">
+                            <div class="mb-3">
+                                <label for="login-username" class="form-label">Логін:</label>
+                                <input type="text" class="form-control" name="username" id="login-username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="login-password" class="form-label">Пароль:</label>
+                                <input type="password" class="form-control" name="password" id="login-password" required>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-center">
+                                <div class="cf-turnstile" 
+                                     data-sitekey="0x4AAAAAAA6w0V2JZsocyn5G"
+                                     data-callback="onLoginTurnstileSuccess"
+                                     data-theme="auto"></div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" id="loginBtn" disabled>Увійти</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="register-tab">
+                        <form action="{{ url_for('register') }}" method="post" id="registerForm">
+                            <div class="mb-3">
+                                <label for="register-username" class="form-label">Логін:</label>
+                                <input type="text" class="form-control" name="username" id="register-username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="register-password" class="form-label">Пароль:</label>
+                                <input type="password" 
+                                       class="form-control" 
+                                       name="password" 
+                                       id="register-password" 
+                                       minlength="8"
+                                       pattern=".{8,}"
+                                       title="Мінімум 8 символів"
+                                       required>
+                                <div class="form-text text-danger" id="password-error"></div>
+                            </div>
+                            <div class="mb-3 d-flex justify-content-center">
+                                <div class="cf-turnstile" 
+                                     data-sitekey="{{ config.CLOUDFLARE_SITE_KEY }}"
+                                     data-callback="onRegisterTurnstileSuccess"
+                                     data-theme="auto"></div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary" id="registerBtn" disabled>Зареєструватися</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card-header-tabs {
+    margin: -1rem -1rem 1rem;
+    border-bottom: none;
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-primary);
+    border: none;
+    padding: 1rem 1.5rem;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: transparent;
+    border-bottom: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.nav-tabs .nav-link:hover {
+    border-color: transparent;
+    isolation: isolate;
+}
+</style>
+
+<script>
+window.onLoginTurnstileSuccess = function(token) {
+    document.getElementById('loginBtn').disabled = false;
+};
+
+window.onRegisterTurnstileSuccess = function(token) {
+    document.getElementById('registerBtn').disabled = false;
+};
+
+['loginForm', 'registerForm'].forEach(formId => {
+    document.getElementById(formId).addEventListener('submit', function(e) {
+        const btn = this.querySelector('button[type="submit"]');
+        if (btn.disabled) {
+            e.preventDefault();
+            alert('Будь ласка, підтвердіть, що ви не робот');
+        }
+    });
+});
+
+document.getElementById('register-password').addEventListener('input', function() {
+    const errorDiv = document.getElementById('password-error');
+    if (this.value.length < 8) {
+        errorDiv.textContent = 'Пароль має містити мінімум 8 символів';
+        this.setCustomValidity('Пароль має містити мінімум 8 символів');
+    } else {
+        errorDiv.textContent = '';
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}
