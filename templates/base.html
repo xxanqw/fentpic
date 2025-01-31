@@ -20,7 +20,7 @@
             --bg-secondary: #ffffff;
             --primary-color: #2ecc71;
             --secondary-color: #27ae60;
-            --text-primary: #2c3e50;
+            --text-primary: #000000;
             --text-secondary: #34495e;
             --border-color: #e0e0e0;
             --shadow-color: rgba(0, 0, 0, 0.1);
@@ -222,16 +222,41 @@
             justify-content: center;
             align-items: center;
         }
+
+        #backToTopBtn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 99;
+            display: none;
+            background-color: var(--primary-color);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: #fff;
+            transition: all 0.3s;
+            font-size: larger;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #backToTopBtn:hover {
+            background-color: var(--secondary-color);
+        }
     </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='fplogo.png') }}" width="30px">
                 FENTPIC</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"><li class="fas fa-bars"></li></span>
+                <span class="navbar-toggler-icon">
+                    <li class="fas fa-bars"></li>
+                </span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
@@ -282,6 +307,7 @@
     <div class="container py-4">
         {% block content %}{% endblock %}
     </div>
+    <button id="backToTopBtn"><i class="fas fa-chevron-up"></i></button>
 
     <footer class="footer">
         <div class="container">
@@ -294,7 +320,8 @@
                     <h5>Проєкти</h5>
                     <ul class="footer-links">
                         <li><a href="https://fentcraft.xxanqw.pp.ua"><i class="fas fa-cube"></i> FENTCRAFT</a></li>
-                        <li><a href="https://fentcraft.xxanqw.pp.ua/map"><i class="fas fa-map"></i> FENTCRAFT Map</a></li>
+                        <li><a href="https://fentcraft.xxanqw.pp.ua/map"><i class="fas fa-map"></i> FENTCRAFT Map</a>
+                        </li>
                         <li><a href="https://github.com/xxanqw"><i class="fab fa-github"></i> xxanqw</a></li>
                     </ul>
                 </div>
@@ -306,20 +333,38 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', () => {
             const themeToggle = document.getElementById('themeToggle');
             const html = document.documentElement;
             const icon = themeToggle.querySelector('i');
 
-            const savedTheme = localStorage.getItem('theme') || 'light';
+            const btn = document.getElementById('backToTopBtn');
+            btn.style.opacity = '0';
+            btn.style.transition = 'opacity 0.3s';
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > window.innerHeight) {
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                } else {
+                    btn.style.opacity = '0';
+                    btn.style.pointerEvents = 'none';
+                }
+            });
+
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            const savedTheme = localStorage.getItem('theme') || 'dark';
             html.setAttribute('data-theme', savedTheme);
             updateIcon(savedTheme);
 
             themeToggle.addEventListener('click', () => {
                 const currentTheme = html.getAttribute('data-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'dark';
 
                 html.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
@@ -328,6 +373,14 @@
 
             function updateIcon(theme) {
                 icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+            }
+
+            if (document.documentElement.scrollHeight <= window.innerHeight) {
+                const footer = document.querySelector('footer');
+                footer.style.position = 'fixed';
+                footer.style.bottom = '0';
+                footer.style.left = '0';
+                footer.style.width = '100%';
             }
         });
     </script>

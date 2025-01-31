@@ -4,10 +4,10 @@
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="card">
+<div class="container mt-5" style="max-width: 600px;">
+    <div class="row justify-content-center">
+        <div class="col-md-12">
+            <div class="card shadow-sm" style="border-radius: 0.75rem;">
                 <div class="card-header">
                     <ul class="nav nav-tabs card-header-tabs">
                         <li class="nav-item">
@@ -31,13 +31,18 @@
                             </div>
                             <div class="mb-3">
                                 <label for="login-password" class="form-label">Пароль:</label>
-                                <input type="password" class="form-control" name="password" id="login-password" required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="password" id="login-password"
+                                        required>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePasswordVisibility('login-password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="mb-3 d-flex justify-content-center">
-                                <div class="cf-turnstile" 
-                                     data-sitekey="0x4AAAAAAA6w0V2JZsocyn5G"
-                                     data-callback="onLoginTurnstileSuccess"
-                                     data-theme="auto"></div>
+                                <div class="cf-turnstile" data-sitekey="0x4AAAAAAA6w0V2JZsocyn5G"
+                                    data-callback="onLoginTurnstileSuccess" data-theme="auto"></div>
                             </div>
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary" id="loginBtn" disabled>Увійти</button>
@@ -53,24 +58,23 @@
                             </div>
                             <div class="mb-3">
                                 <label for="register-password" class="form-label">Пароль:</label>
-                                <input type="password" 
-                                       class="form-control" 
-                                       name="password" 
-                                       id="register-password" 
-                                       minlength="8"
-                                       pattern=".{8,}"
-                                       title="Мінімум 8 символів"
-                                       required>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" name="password" id="register-password"
+                                        minlength="8" pattern=".{8,}" title="Мінімум 8 символів" required>
+                                    <button class="btn btn-outline-secondary" type="button"
+                                        onclick="togglePasswordVisibility('register-password', this)">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
                                 <div class="form-text text-danger" id="password-error"></div>
                             </div>
                             <div class="mb-3 d-flex justify-content-center">
-                                <div class="cf-turnstile" 
-                                     data-sitekey="{{ config.CLOUDFLARE_SITE_KEY }}"
-                                     data-callback="onRegisterTurnstileSuccess"
-                                     data-theme="auto"></div>
+                                <div class="cf-turnstile" data-sitekey="{{ config.CLOUDFLARE_SITE_KEY }}"
+                                    data-callback="onRegisterTurnstileSuccess" data-theme="auto"></div>
                             </div>
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary" id="registerBtn" disabled>Зареєструватися</button>
+                                <button type="submit" class="btn btn-primary" id="registerBtn"
+                                    disabled>Зареєструватися</button>
                             </div>
                         </form>
                     </div>
@@ -81,57 +85,79 @@
 </div>
 
 <style>
-.card-header-tabs {
-    margin: -1rem -1rem 1rem;
-    border-bottom: none;
-}
+    .card {
+        margin-top: 1rem;
+        border-radius: 0.75rem;
+    }
 
-.nav-tabs .nav-link {
-    color: var(--text-primary);
-    border: none;
-    padding: 1rem 1.5rem;
-}
+    .card-header-tabs {
+        margin-bottom: 1rem;
+    }
 
-.nav-tabs .nav-link.active {
-    background-color: transparent;
-    border-bottom: 2px solid var(--primary-color);
-    color: var(--primary-color);
-}
+    .nav-tabs {
+        justify-content: center;
+    }
 
-.nav-tabs .nav-link:hover {
-    border-color: transparent;
-    isolation: isolate;
-}
+    .nav-tabs .nav-link {
+        color: var(--text-primary);
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .nav-tabs .nav-link.active {
+        background-color: transparent;
+        border-bottom: 2px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .nav-tabs .nav-link:hover {
+        border-color: var(--secondary-color);
+        isolation: isolate;
+    }
 </style>
 
 <script>
-window.onLoginTurnstileSuccess = function(token) {
-    document.getElementById('loginBtn').disabled = false;
-};
+    window.onLoginTurnstileSuccess = function (token) {
+        document.getElementById('loginBtn').disabled = false;
+    };
 
-window.onRegisterTurnstileSuccess = function(token) {
-    document.getElementById('registerBtn').disabled = false;
-};
+    window.onRegisterTurnstileSuccess = function (token) {
+        document.getElementById('registerBtn').disabled = false;
+    };
 
-['loginForm', 'registerForm'].forEach(formId => {
-    document.getElementById(formId).addEventListener('submit', function(e) {
-        const btn = this.querySelector('button[type="submit"]');
-        if (btn.disabled) {
-            e.preventDefault();
-            alert('Будь ласка, підтвердіть, що ви не робот');
+    ['loginForm', 'registerForm'].forEach(formId => {
+        document.getElementById(formId).addEventListener('submit', function (e) {
+            const btn = this.querySelector('button[type="submit"]');
+            if (btn.disabled) {
+                e.preventDefault();
+                alert('Будь ласка, підтвердіть, що ви не робот');
+            }
+        });
+    });
+
+    document.getElementById('register-password').addEventListener('input', function () {
+        const errorDiv = document.getElementById('password-error');
+        if (this.value.length < 8) {
+            errorDiv.textContent = 'Пароль має містити мінімум 8 символів';
+            this.setCustomValidity('Пароль має містити мінімум 8 символів');
+        } else {
+            errorDiv.textContent = '';
+            this.setCustomValidity('');
         }
     });
-});
 
-document.getElementById('register-password').addEventListener('input', function() {
-    const errorDiv = document.getElementById('password-error');
-    if (this.value.length < 8) {
-        errorDiv.textContent = 'Пароль має містити мінімум 8 символів';
-        this.setCustomValidity('Пароль має містити мінімум 8 символів');
-    } else {
-        errorDiv.textContent = '';
-        this.setCustomValidity('');
+    function togglePasswordVisibility(id, btn) {
+        const input = document.getElementById(id);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
     }
-});
 </script>
 {% endblock %}
