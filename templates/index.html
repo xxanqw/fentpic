@@ -38,7 +38,7 @@
 </div>
 {% if images and images|length > 0 %}
 <div class="container mt-2 text-end">
-    <button id="selectAllBtn" class="btn btn-outline-primary">Обрати всі</button>
+    <button id="selectAllBtn" class="btn btn-outline-primary mb-2">Обрати всі</button>
 </div>
 <div class="masonry-grid" id="imageGrid">
     {% for image in images %}
@@ -96,13 +96,30 @@
     </div>
 </div>
 
-<div id="deleteSticky"
-    style="display:none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 1rem; box-shadow: 0 -2px 6px rgba(0,0,0,0.3); text-align: center; z-index: 200;">
+<div id="deleteSticky" class=""
+    style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 1rem; box-shadow: 0 -2px 6px rgba(0,0,0,0.3); text-align: center; z-index: 200;">
     <form action="{{ url_for('delete_multiple_images') }}" method="POST" id="deleteForm">
-        <!-- If using CSRF protection, include token here -->
         <div id="selectedImagesInputs"></div>
-        <button type="submit" class="btn btn-danger">Видалити</button>
+        <button type="button" class="btn btn-danger" id="multipleDeleteBtn">Видалити</button>
     </form>
+</div>
+
+<div class="modal fade" id="deleteMultipleModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Ви впевнені, що хочете видалити вибрані зображення?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <button type="button" class="btn btn-danger" id="confirmMultipleDelete">Видалити</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -234,6 +251,8 @@
         grid-auto-flow: dense;
         gap: 1rem;
         padding: 1rem;
+        background-color: var(--bg-secondary);
+        border-radius: 1rem;
     }
 
     .masonry-item {
@@ -401,6 +420,46 @@
         height: 20px;
         cursor: pointer;
     }
+
+    .select-checkbox {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--secondary-color);
+        background-color: var(--bg-secondary);
+        border-radius: 1rem;
+        cursor: pointer;
+        position: relative;
+        outline: none;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .select-checkbox:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .select-checkbox:checked::after {
+        content: '';
+        position: absolute;
+        top: 1px;
+        left: 6px;
+        width: 6px;
+        height: 12px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+    }
+
+    #deleteSticky {
+        transform: translateY(100%);
+        opacity: 0;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+    #deleteSticky.visible {
+        transform: translateY(0);
+        opacity: 1;
+    }
 </style>
 
 <script>
@@ -454,10 +513,10 @@
         });
         const selectAllBtn = document.getElementById('selectAllBtn');
         if (selected.length > 0) {
-            deleteSticky.style.display = 'block';
+            deleteSticky.classList.add('visible');
             selectAllBtn.textContent = 'Зняти обране';
         } else {
-            deleteSticky.style.display = 'none';
+            deleteSticky.classList.remove('visible');
             selectAllBtn.textContent = 'Обрати всі';
         }
     }
@@ -470,6 +529,22 @@
         const cancelUpload = document.getElementById('cancelUpload');
         const uploadForm = document.getElementById('uploadForm');
         const selectAllBtn = document.getElementById('selectAllBtn');
+        const multipleDeleteBtn = document.getElementById('multipleDeleteBtn');
+        const deleteMultipleModal = new bootstrap.Modal(document.getElementById('deleteMultipleModal'));
+        const confirmMultipleDelete = document.getElementById('confirmMultipleDelete');
+        
+        if (multipleDeleteBtn) {
+            multipleDeleteBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                deleteMultipleModal.show();
+            });
+        }
+        
+        if (confirmMultipleDelete) {
+            confirmMultipleDelete.addEventListener('click', function () {
+                document.getElementById('deleteForm').submit();
+            });
+        }
 
         if (selectAllBtn) {
             selectAllBtn.addEventListener('click', function () {
