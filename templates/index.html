@@ -37,6 +37,9 @@
     </div>
 </div>
 {% if images and images|length > 0 %}
+<div class="container mt-2 text-end">
+    <button id="selectAllBtn" class="btn btn-outline-primary">Обрати всі</button>
+</div>
 <div class="masonry-grid" id="imageGrid">
     {% for image in images %}
     <div class="masonry-item">
@@ -49,6 +52,9 @@
                     title="Скопіювати URL зображення">
                     <i class="fas fa-link"></i>
                 </button>
+                <div class="select-overlay" style="position: absolute; top: 5px; left: 5px;">
+                    <input type="checkbox" class="select-checkbox" data-image-id="{{ image.id }}">
+                </div>
             </div>
             <div class="card-overlay">
                 <p class="timestamp">
@@ -69,7 +75,7 @@
     <div class="empty-gallery">
         <p>Тут будуть твої зображення</p>
     </div>
-    
+
 </div>
 {% endif %}
 <div class="modal fade" id="deleteModal" tabindex="-1">
@@ -88,6 +94,15 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="deleteSticky"
+    style="display:none; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 1rem; box-shadow: 0 -2px 6px rgba(0,0,0,0.3); text-align: center; z-index: 200;">
+    <form action="{{ url_for('delete_multiple_images') }}" method="POST" id="deleteForm">
+        <!-- If using CSRF protection, include token here -->
+        <div id="selectedImagesInputs"></div>
+        <button type="submit" class="btn btn-danger">Видалити</button>
+    </form>
 </div>
 
 <style>
@@ -380,15 +395,19 @@
         border-radius: 20px;
         grid-column: span 4;
     }
+
+    .select-overlay input.select-checkbox {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
 </style>
 
 <script>
     const theme = localStorage.getItem('theme') || 'dark';
-    const closeButton = document.querySelectorAll('.btn-close');
-    closeButton.forEach(button => {
+    document.querySelectorAll('.btn-close').forEach(button => {
         button.setAttribute('data-bs-theme', theme);
     });
-
 
     const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
@@ -415,117 +434,139 @@
         navigator.clipboard.writeText(url).then(() => {
             const icon = button.querySelector('i');
             icon.className = 'fas fa-check';
-            setTimeout(() => {
-                icon.className = 'fas fa-link';
-            }, 2000);
+            setTimeout(() => { icon.className = 'fas fa-link'; }, 2000);
         });
     }
 
-    function removePreview(button) {
-        const item = button.closest('.preview-item');
-        const index = Array.from(item.parentNode.children).indexOf(item);
-
-        const newFiles = new DataTransfer();
-        Array.from(fileInput.files).forEach((file, i) => {
-            if (i !== index) newFiles.items.add(file);
+    // Multiple selection handling
+    function updateDeleteSticky() {
+        const checkboxes = document.querySelectorAll('.select-checkbox');
+        const selected = Array.from(checkboxes).filter(cb => cb.checked);
+        const deleteSticky = document.getElementById('deleteSticky');
+        const selectedInputsContainer = document.getElementById('selectedImagesInputs');
+        selectedInputsContainer.innerHTML = '';
+        selected.forEach(cb => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'image_ids';
+            input.value = cb.dataset.imageId;
+            selectedInputsContainer.appendChild(input);
         });
-
-        fileInput.files = newFiles.files;
-        document.getElementById('fileCount').textContent = newFiles.files.length;
-        item.remove();
-
-        if (newFiles.files.length === 0) {
-            uploadContent.style.display = 'block';
-            previewContent.style.display = 'none';
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        if (selected.length > 0) {
+            deleteSticky.style.display = 'block';
+            selectAllBtn.textContent = 'Зняти обране';
+        } else {
+            deleteSticky.style.display = 'none';
+            selectAllBtn.textContent = 'Обрати всі';
         }
     }
 
     document.addEventListener('DOMContentLoaded', function () {
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
-        const imagePreview = document.getElementById('imagePreview');
         const uploadContent = document.getElementById('uploadContent');
         const previewContent = document.getElementById('previewContent');
         const cancelUpload = document.getElementById('cancelUpload');
         const uploadForm = document.getElementById('uploadForm');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function () {
+                const checkboxes = document.querySelectorAll('.select-checkbox');
+                const anySelected = Array.from(checkboxes).some(cb => cb.checked);
+                if (anySelected) {
+                    checkboxes.forEach(cb => cb.checked = false);
+                    this.textContent = 'Обрати всі';
+                } else {
+                    checkboxes.forEach(cb => cb.checked = true);
+                    this.textContent = 'Зняти обране';
+                }
+                updateDeleteSticky();
+            });
+        }
+
+        function removePreview(button) {
+            const item = button.closest('.preview-item');
+            const index = Array.from(item.parentNode.children).indexOf(item);
+            const newFiles = new DataTransfer();
+            Array.from(fileInput.files).forEach((file, i) => {
+                if (i !== index) newFiles.items.add(file);
+            });
+            fileInput.files = newFiles.files;
+            document.getElementById('fileCount').textContent = newFiles.files.length;
+            item.remove();
+            if (newFiles.files.length === 0) {
+                uploadContent.style.display = 'block';
+                previewContent.style.display = 'none';
+            }
+        }
+        window.removePreview = removePreview;
 
         function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
         }
-
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropZone.addEventListener(eventName, preventDefaults, false);
         });
-
-        function highlight() {
-            dropZone.classList.add('dragover');
-        }
-
-        function unhighlight() {
-            dropZone.classList.remove('dragover');
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, unhighlight, false);
-        });
+        function highlight() { dropZone.classList.add('dragover'); }
+        function unhighlight() { dropZone.classList.remove('dragover'); }
+        ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, highlight, false); });
+        ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, unhighlight, false); });
 
         function isValidImage(file) {
             const extension = '.' + file.name.split('.').pop().toLowerCase();
             return ALLOWED_TYPES.includes(file.type) && ALLOWED_EXTENSIONS.includes(extension);
         }
-
-
-        function handleFiles(files) {
+        function handleFiles(files, append = false) {
             const previewGrid = document.getElementById('previewGrid');
+            if (!append) { previewGrid.innerHTML = ''; }
             let validFiles = new DataTransfer();
             let invalidCount = 0;
-
-            previewGrid.innerHTML = '';
-
-            const uniqueFiles = new Set();
-
+            if (append && fileInput.files) {
+                Array.from(fileInput.files).forEach(file => { validFiles.items.add(file); });
+            }
+            const existingFiles = new Map();
+            Array.from(validFiles.files).forEach(file => {
+                const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
+                existingFiles.set(fileKey, file);
+            });
             Array.from(files).forEach(file => {
                 const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-
-                if (!uniqueFiles.has(fileKey) && isValidImage(file)) {
-                    uniqueFiles.add(fileKey);
+                if (!existingFiles.has(fileKey) && isValidImage(file)) {
+                    existingFiles.set(fileKey, file);
                     validFiles.items.add(file);
-
                     const reader = new FileReader();
                     reader.onload = function (e) {
-                        const div = document.createElement('div');
-                        div.className = 'preview-item';
-                        div.innerHTML = `
-                            <img src="${e.target.result}" alt="Попередній перегляд">
-                            <button class="remove-preview" onclick="removePreview(this)">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        `;
-                        previewGrid.appendChild(div);
-                    }
+                        if (e.target && e.target.result) {
+                            const div = document.createElement('div');
+                            div.className = 'preview-item';
+                            div.innerHTML = `
+                                <img src="${e.target.result}" alt="Попередній перегляд">
+                                <button class="remove-preview" onclick="removePreview(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            `;
+                            previewGrid.appendChild(div);
+                        }
+                    };
+                    reader.onerror = function (error) {
+                        console.error('Error reading file:', error);
+                        flash('Помилка читання файлу', 'danger');
+                    };
                     reader.readAsDataURL(file);
-                } else if (!isValidImage(file)) {
-                    invalidCount++;
-                }
+                } else if (!isValidImage(file)) { invalidCount++; }
             });
-
             fileInput.files = validFiles.files;
-            const validCount = validFiles.files.length;
-            document.getElementById('fileCount').textContent = validCount;
-
-            if (validCount > 0) {
+            document.getElementById('fileCount').textContent = validFiles.files.length;
+            if (validFiles.files.length > 0) {
                 uploadContent.style.display = 'none';
                 previewContent.style.display = 'block';
             } else {
                 uploadContent.style.display = 'block';
                 previewContent.style.display = 'none';
             }
-
             if (invalidCount > 0) {
                 flash(`${invalidCount} файл(ів) пропущено. Підтримуються лише зображення (JPG, PNG, GIF, WEBP)`, 'warning');
             }
@@ -534,64 +575,48 @@
         dropZone.addEventListener('drop', function (e) {
             e.preventDefault();
             const dt = e.dataTransfer;
-            handleFiles(dt.files);
+            handleFiles(dt.files, true);
             unhighlight();
         });
-
-
         fileInput.addEventListener('change', function () {
-            handleFiles(this.files);
+            const previewGrid = document.getElementById('previewGrid');
+            previewGrid.innerHTML = '';
+            handleFiles(this.files, false);
         });
-
         cancelUpload.addEventListener('click', function () {
             fileInput.value = '';
-
             const previewGrid = document.getElementById('previewGrid');
-            if (previewGrid) {
-                previewGrid.innerHTML = '';
-            }
-
+            if (previewGrid) { previewGrid.innerHTML = ''; }
             document.getElementById('fileCount').textContent = '0';
-
             uploadContent.style.display = 'block';
             previewContent.style.display = 'none';
-
             dropZone.classList.remove('dragover');
         });
-
         uploadForm.addEventListener('submit', function (e) {
             if (!fileInput.files || !fileInput.files[0]) {
                 e.preventDefault();
                 flash('Будь ласка, виберіть файл для завантаження', 'danger');
                 return;
             }
-
-            window.scrollTo({
-                top: 0,
-                behavior: 'instant'
-            });
-
+            window.scrollTo({ top: 0, behavior: 'instant' });
             const loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.style.display = 'flex';
-
             cancelUpload.disabled = true;
-            uploadForm.querySelector('button[type="submit"]').disabled = true;
+            document.querySelector('button[form="uploadForm"]').disabled = true;
         });
-
         function flash(message, type) {
             const flashDiv = document.createElement('div');
             flashDiv.className = `alert alert-${type} alert-dismissible fade show`;
             flashDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
             document.querySelector('.upload-container').insertAdjacentElement('beforebegin', flashDiv);
             setTimeout(() => flashDiv.remove(), 5000);
         }
 
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
         const confirmDeleteBtn = document.getElementById('confirmDelete');
-
         document.querySelectorAll('[data-delete-url]').forEach(button => {
             button.addEventListener('click', function (e) {
                 e.preventDefault();
@@ -602,25 +627,21 @@
 
         const grid = document.querySelector('#imageGrid');
         const images = grid.querySelectorAll('img');
-
         images.forEach(img => {
-            if (img.complete) {
-                handleImageLoad(img);
-            } else {
-                img.addEventListener('load', () => handleImageLoad(img));
-            }
+            if (img.complete) { handleImageLoad(img); }
+            else { img.addEventListener('load', () => handleImageLoad(img)); }
+        });
+
+        // Listen for changes in selection checkboxes
+        document.querySelectorAll('.select-checkbox').forEach(cb => {
+            cb.addEventListener('change', updateDeleteSticky);
         });
     });
 
-
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/static/sw.js')
-            .then(registration => {
-                console.log('Service Worker registered');
-            })
-            .catch(error => {
-                console.error('Service Worker registration failed:', error);
-            });
+            .then(registration => { console.log('Service Worker registered'); })
+            .catch(error => { console.error('Service Worker registration failed:', error); });
     }
 </script>
 {% endblock %}

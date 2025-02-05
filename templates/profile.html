@@ -6,12 +6,15 @@
         <div class="card profile-card">
             <div class="card-body text-center">
                 <div class="avatar-container">
-                    <form action="{{ url_for('change_avatar') }}" method="post" enctype="multipart/form-data" id="avatarForm">
+                    <form action="{{ url_for('change_avatar') }}" method="post" enctype="multipart/form-data"
+                        id="avatarForm">
                         <input type="file" name="avatar" id="avatarInput" accept=".jpg,.jpeg,.png,.gif,.webp" hidden>
                         {% if user.avatar_url %}
-                        <img src="{{ url_for('static', filename=user.avatar_url) }}" class="profile-avatar" alt="Avatar">
+                        <img src="{{ url_for('static', filename=user.avatar_url) }}" class="profile-avatar"
+                            alt="Avatar">
                         {% else %}
-                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.id }}" class="profile-avatar" alt="Avatar">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.id }}" class="profile-avatar"
+                            alt="Avatar">
                         {% endif %}
                         <div class="avatar-overlay">
                             <i class="fas fa-camera"></i>
@@ -25,6 +28,25 @@
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h5>Використано: {{ (total_size / 1024 / 1024) | round(2) }} MB з 500 MB</h5>
+    <div class="progress">
+        {% if percent < 50 %}
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{ percent|safe }}%;" aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0" aria-valuemax="500">
+            {{ percent | round(2) }}%
+        </div>
+        {% elif percent < 90 %}
+        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ percent|safe }}%;" aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0" aria-valuemax="500">
+            {{ percent | round(2) }}%
+        </div>
+        {% else %}
+        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ percent|safe }}%;" aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0" aria-valuemax="500">
+            {{ percent | round(2) }}%
+        </div>
+        {% endif %}
     </div>
 </div>
 
@@ -154,11 +176,11 @@
 </style>
 
 <script>
-    document.querySelector('.avatar-container').addEventListener('click', function() {
+    document.querySelector('.avatar-container').addEventListener('click', function () {
         document.getElementById('avatarInput').click();
     });
 
-    document.getElementById('avatarInput').addEventListener('change', function() {
+    document.getElementById('avatarInput').addEventListener('change', function () {
         if (this.files && this.files[0]) {
             document.getElementById('avatarForm').submit();
         }
