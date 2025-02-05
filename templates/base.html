@@ -285,7 +285,7 @@
                     {% endif %}
                     <li class="nav-item">
                         <button class="theme-toggle" id="themeToggle">
-                            <i class="fas fa-moon"></i>
+                            <i class="fas fa-sun"></i>
                         </button>
                     </li>
                 </ul>
@@ -364,7 +364,7 @@
 
             themeToggle.addEventListener('click', () => {
                 const currentTheme = html.getAttribute('data-theme');
-                const newTheme = currentTheme === 'light' ? 'dark' : 'dark';
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
                 html.setAttribute('data-theme', newTheme);
                 localStorage.setItem('theme', newTheme);
@@ -372,7 +372,7 @@
             });
 
             function updateIcon(theme) {
-                icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+                icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
             }
 
             if (document.documentElement.scrollHeight <= window.innerHeight) {
