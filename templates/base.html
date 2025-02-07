@@ -134,44 +134,76 @@
         .footer {
             background-color: var(--footer-bg);
             color: var(--footer-text);
-            padding: 2rem 0 1rem;
-            margin-top: 2rem;
+            padding: 3rem 0 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .footer-section {
+            height: 100%;
         }
 
         .footer h5 {
             color: var(--text-primary);
-            margin-bottom: 1rem;
             font-weight: 600;
+            font-size: 1.1rem;
         }
 
         .footer-links {
             list-style: none;
             padding: 0;
+            margin: 0;
         }
 
         .footer-links li {
-            margin-bottom: 0.8rem;
+            margin-bottom: 1rem;
         }
 
         .footer-links a {
             color: var(--footer-text);
             text-decoration: none;
-            transition: color 0.3s;
-            font-size: 1.1rem;
+            transition: color 0.2s;
+            display: inline-flex;
+            align-items: center;
         }
 
         .footer-links a:hover {
             color: var(--primary-color);
         }
 
-        .footer hr {
+        .social-links a {
+            color: var(--footer-text);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .social-links a:hover {
+            color: var(--primary-color);
+        }
+
+        hr {
             border-color: var(--border-color);
-            margin: 1.5rem 0;
+            opacity: 0.1;
         }
 
         .copyright {
             color: var(--footer-text);
             font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer {
+                padding: 2rem 0 1rem;
+            }
+
+            .footer-section {
+                text-align: center;
+            }
+
+            .social-links {
+                justify-content: center;
+                display: flex;
+                margin-top: 1rem;
+            }
         }
 
         .profile-pic {
@@ -245,10 +277,118 @@
         #backToTopBtn:hover {
             background-color: var(--secondary-color);
         }
+
+        /* GDPR styles */
+        #gdpr-overlay {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--bg-secondary);
+            box-shadow: 0 -2px 10px var(--shadow-color);
+            z-index: 1000;
+            padding: 20px;
+            display: none;
+        }
+
+        #gdpr-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            text-align: center;
+        }
+
+        #gdpr-content h4 {
+            margin: 0;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        #gdpr-content p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            max-width: 800px;
+        }
+
+        .gdpr-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        #gdpr-accept,
+        #gdpr-decline {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #gdpr-accept {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        #gdpr-accept:hover {
+            background-color: var(--secondary-color);
+        }
+
+        #gdpr-decline {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        #gdpr-decline:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 768px) {
+            #gdpr-overlay {
+                padding: 15px;
+            }
+
+            #gdpr-content h4 {
+                font-size: 1.1rem;
+            }
+
+            #gdpr-content p {
+                font-size: 0.9rem;
+            }
+
+            #gdpr-accept,
+            #gdpr-decline {
+                width: 100%;
+                padding: 10px;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <!-- GDPR Overlay -->
+    <div id="gdpr-overlay">
+        <div id="gdpr-content">
+            <h4>Ми використовуємо файли cookie</h4>
+            <p>Ми використовуємо файли cookie, щоб покращити ваш досвід користування сайтом.
+                Продовжуючи використовувати цей сайт, ви погоджуєтесь на використання файлів cookie.
+                Ознайомитися з тим які саме cookies ми використовуємо перейдіть до <a href="pp">політики
+                    конфіденційності</a></p>
+            <div class="gdpr-buttons">
+                <button id="gdpr-accept">Прийняти</button>
+                <button id="gdpr-decline">Відхилити</button>
+            </div>
+        </div>
+    </div>
+
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
             <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='fplogo.png') }}" width="30px">
@@ -311,22 +451,60 @@
 
     <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6 mb-4">
-                    <h5><img src="static/fplogo.png" width="30px"> FENTPIC</h5>
-                    <p class="mb-0">Простий та зручний хостинг зображень для нігерів з FENTCRAFT</p>
+            <div class="row g-4">
+                <!-- About Column -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-section">
+                        <h5 class="d-flex align-items-center gap-2 mb-3">
+                            <img src="static/fplogo.png" width="30" alt="FENTPIC Logo">
+                            FENTPIC
+                        </h5>
+                        <p class="mb-3">Простий та зручний хостинг зображень для людей</p>
+                        <div class="social-links">
+                            <a href="https://github.com/xxanqw/FENTPIC" class="me-3"><i class="fab fa-github fa-lg"></i></a>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-6 mb-4">
-                    <h5>Проєкти</h5>
-                    <ul class="footer-links">
-                        <li><a href="https://fentcraft.xxanqw.pp.ua"><i class="fas fa-cube"></i> FENTCRAFT</a></li>
-                        <li><a href="https://fentcraft.xxanqw.pp.ua/map"><i class="fas fa-map"></i> FENTCRAFT Map</a>
-                        </li>
-                        <li><a href="https://github.com/xxanqw"><i class="fab fa-github"></i> xxanqw</a></li>
-                    </ul>
+
+                <!-- Projects Column -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-section">
+                        <h5 class="mb-3">Проєкти</h5>
+                        <ul class="footer-links">
+                            <li><a href="https://fentcraft.xxanqw.pp.ua">
+                                    <i class="fas fa-cube me-2"></i>FENTCRAFT
+                                </a></li>
+                            <li><a href="https://fentcraft.xxanqw.pp.ua/map">
+                                    <i class="fas fa-map me-2"></i>FENTCRAFT Map
+                                </a></li>
+                            <li><a href="https://github.com/xxanqw">
+                                    <i class="fab fa-github me-2"></i>xxanqw
+                                </a></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Legal Column -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="footer-section">
+                        <h5 class="mb-3">Правова інформація</h5>
+                        <ul class="footer-links">
+                            <li><a href="/pp">
+                                    <i class="fas fa-shield-alt me-2"></i>Політика конфіденційності
+                                </a></li>
+                            <li><a href="/tos">
+                                    <i class="fas fa-file-contract me-2"></i>Умови надання послуг
+                                </a></li>
+                            <li><a href="mailto:contact@xxanqw.pp.ua">
+                                    <i class="fas fa-envelope me-2"></i>Зв'язатися з нами
+                                </a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <hr>
+
+            <hr class="my-4">
+
             <div class="text-center copyright">
                 <p class="mb-0">&copy; 2025 xxanqw. Всі права захищені.</p>
             </div>
@@ -382,6 +560,29 @@
                 footer.style.left = '0';
                 footer.style.width = '100%';
             }
+
+            // GDPR script
+            const gdprOverlay = document.getElementById('gdpr-overlay');
+            const gdprAccept = document.getElementById('gdpr-accept');
+            const gdprDecline = document.getElementById('gdpr-decline');
+
+            // Check if GDPR is already accepted
+            if (localStorage.getItem('gdpr_accepted') === 'true') {
+                gdprOverlay.style.display = 'none';
+            } else {
+                gdprOverlay.style.display = 'flex';
+            }
+
+            gdprAccept.addEventListener('click', () => {
+                localStorage.setItem('gdpr_accepted', 'true');
+                gdprOverlay.style.display = 'none';
+                window.location.href = "/accept_cookies";
+            });
+
+            gdprDecline.addEventListener('click', () => {
+
+                gdprOverlay.style.display = 'none';
+            });
         });
     </script>
 </body>
