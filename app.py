@@ -14,6 +14,10 @@ load_dotenv()
 
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Enable HTTP for OAuth
 
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
 # Initialize Flask app
 app = Flask(__name__)
 app.config.update(
@@ -25,8 +29,8 @@ app.config.update(
     PERMANENT_SESSION_LIFETIME = timedelta(days=31),
     SESSION_COOKIE_SECURE = True,
     SESSION_COOKIE_SAMESITE = 'None',
-    SESSION_COOKIE_HTTPONLY = True
-)
+    SESSION_COOKIE_HTTPONLY = True,
+    )
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['AVATAR_FOLDER'], exist_ok=True)
@@ -41,7 +45,7 @@ IMAGE_SIGNATURES = {
     'gif': (b'GIF87a', b'GIF89a'),
     'webp': (b'RIFF', b'WEBP')
 }
-
+            
 def validate_image(stream):
     """Validate image using magic numbers"""
     header = stream.read(12)
@@ -62,6 +66,9 @@ def validate_file_size(stream):
     size = stream.tell()
     stream.seek(0)
     return size <= MAX_FILE_SIZE
+
+def get_google_provider_cfg():
+    return requests.get(GOOGLE_DISCOVERY_URL).json()
 
 def get_avatar_path(filename):
     """Generate consistent avatar path"""
@@ -124,11 +131,31 @@ def load_logged_in_user():
     g.user = None
     if 'user_id' in session:
         db = get_db()
+        # Retrieve user data
         g.user = db.execute('''
-            SELECT id, username, avatar_url 
+            SELECT id, username, avatar_url, email
             FROM users 
             WHERE id = ?
         ''', [session['user_id']]).fetchone()
+
+    # Check if the user needs to be prompted for email and if it's the first request after login
+    if g.user and not g.user['email'] and 'email_notification_closed' not in session and request.endpoint not in ['static', 'logout', 'profile']:
+        session['email_notification_prompted'] = True
+        flash(
+            "Будь ласка, додайте електронну адресу у вашому профілі. "
+            "Скоро вхід буде доступний лише через Google, тому це необхідна дія. "
+            "Та НІ В ЯКОМУ РАЗІ не виходьте з акаунту без додавання пошти.",
+            "danger"
+        )
+
+def check_cookies_accepted():
+    """Check if user has accepted cookies."""
+    return request.cookies.get('cookies_accepted') == 'true'
+
+@app.before_request
+def before_request():
+    """Check GDPR cookie before each request."""
+    g.cookies_accepted = check_cookies_accepted()
 
 @app.route('/')
 def home():
@@ -150,7 +177,7 @@ def profile():
 
     db = get_db()
     user = db.execute('''
-        SELECT id, username, avatar_url 
+        SELECT id, username, avatar_url, email 
         FROM users 
         WHERE id = ?
     ''', [session['user_id']]).fetchone()
@@ -178,6 +205,26 @@ def profile():
     print(total_size, limit, percent)
 
     return render_template('profile.html', user=user, total_size=total_size, percent=percent)
+
+@app.route('/profile/add-email', methods=['POST'])
+def add_email():
+    if 'user_id' not in session:
+        flash('Будь ласка, увійдіть спочатку', 'danger')
+        return redirect(url_for('login'))
+
+    email = request.form.get('email')
+    if not email:
+        flash('Будь ласка, введіть email', 'danger')
+        return redirect(url_for('profile'))
+
+    db = get_db()
+    try:
+        db.execute('UPDATE users SET email = ? WHERE id = ?', [email, session['user_id']])
+        db.commit()
+        flash('Email успішно додано', 'success')
+    except sqlite3.IntegrityError:
+        flash('Цей email вже використовується', 'danger')
+    return redirect(url_for('profile'))
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -312,7 +359,8 @@ def change_avatar():
 def upload():
     # Authentication check
     if 'user_id' not in session:
-        return {'error': 'Unauthorized'}, 401
+        flash('Будь ласка, увійдіть спочатку', 'danger')
+        return redirect(url_for('login'))
 
     db = get_db()
     user = db.execute('SELECT * FROM users WHERE id = ?', [session['user_id']]).fetchone()
@@ -447,11 +495,12 @@ def upload():
         flash('Жодне зображення не було успішно завантажено', 'danger')
 
     response = make_response(redirect(url_for('home')))
-    response.headers.update({
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-    })
+    if g.cookies_accepted:
+        response.headers.update({
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        })
     return response
 
 @app.route('/logout')
@@ -550,6 +599,169 @@ def delete_multiple_images():
     flash(f'Видалено {deleted_count} зображень', 'success')
     return redirect(url_for('home'))
 
+@app.route('/auth/google')
+def google_login():
+    google_provider_cfg = get_google_provider_cfg()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    request_uri = requests.Request(
+        'GET',
+        authorization_endpoint,
+        params={
+            "client_id": GOOGLE_CLIENT_ID,
+            "redirect_uri": url_for('google_callback', _external=True, _scheme='https'),
+            "scope": "openid email profile",
+            "response_type": "code",
+            "prompt": "consent",
+            "access_type": "offline"
+        }
+    ).prepare().url
+    return redirect(request_uri)
+
+@app.route('/auth/google/callback')
+def google_callback():
+    code = request.args.get("code")
+    if not code:
+        flash("Авторизація не вдалася.", "danger")
+        return redirect(url_for("login"))
+
+    google_provider_cfg = get_google_provider_cfg()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+
+    token_response = requests.post(
+        token_endpoint,
+        data={
+            "code": code,
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "redirect_uri": url_for('google_callback', _external=True, _scheme='https'),
+            "grant_type": "authorization_code"
+        },
+        headers={"Content-Type": "application/x-www-form-urlencoded"}
+    )
+
+    if token_response.status_code != 200:
+        flash("Помилка обміну токеном", "danger")
+        return redirect(url_for("login"))
+
+    tokens = token_response.json()
+    access_token = tokens.get("access_token")
+    if not access_token:
+        flash("Немає access token", "danger")
+        return redirect(url_for("login"))
+
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    userinfo_response = requests.get(
+        userinfo_endpoint,
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+
+    if userinfo_response.status_code != 200:
+        flash("Не вдалося отримати інформацію про користувача від Google", "danger")
+        return redirect(url_for("login"))
+
+    userinfo = userinfo_response.json()
+    if not userinfo.get("email_verified"):
+        flash("Email не підтверджено Google", "danger")
+        return redirect(url_for("login"))
+
+    google_id = userinfo["sub"]
+    email = userinfo["email"]
+    username = userinfo.get("given_name") or email.split('@')[0]
+    picture = userinfo.get("picture", "")
+
+    db = get_db()
+    existing_user = db.execute("SELECT * FROM users WHERE email = ?", [email]).fetchone()
+
+    if existing_user:
+        # If user already registered, update google_id if not already set
+        if not existing_user["google_id"]:
+            db.execute("UPDATE users SET google_id = ? WHERE id = ?", [google_id, existing_user["id"]])
+            db.commit()
+            flash("Google аккаунт додано до існуючого профіля", "success")
+        session["user_id"] = existing_user["id"]
+        session["username"] = existing_user["username"]
+        flash("Ви увійшли через Google", "success")
+        return redirect(url_for("home"))
+    else:
+        # Register new user with Google account details
+        db.execute(
+            "INSERT INTO users (username, email, google_id, avatar_url) VALUES (?, ?, ?, ?)",
+            [username, email, google_id, picture]
+        )
+        db.commit()
+        user = db.execute("SELECT * FROM users WHERE email = ?", [email]).fetchone()
+        session["user_id"] = user["id"]
+        session["username"] = user["username"]
+        flash("Реєстрація через Google пройшла успішно", "success")
+        return redirect(url_for("home"))
+    
+@app.route('/profile/change-username', methods=['POST'])
+def change_username():
+    if 'user_id' not in session:
+        flash('Будь ласка, увійдіть спочатку', 'danger')
+        return redirect(url_for('login'))
+    
+    new_username = request.form.get('new_username')
+    if not new_username:
+        flash('Будь ласка, введіть нове ім\'я користувача', 'danger')
+        return redirect(url_for('profile'))
+    db = get_db()
+    try:
+        db.execute('UPDATE users SET username = ? WHERE id = ?', [new_username, session['user_id']])
+        db.commit()
+        session['username'] = new_username
+        flash('Ім\'я користувача успішно змінено', 'success')
+    except sqlite3.IntegrityError:
+        flash('Це ім\'я користувача вже використовується', 'danger')
+    return redirect(url_for('profile'))
+
+@app.route('/profile/delete-account', methods=['POST'])
+def delete_account():
+    if 'user_id' not in session:
+        flash('Будь ласка, увійдіть спочатку', 'danger')
+        return redirect(url_for('login'))
+    db = get_db()
+    user_id = session['user_id']
+    # Get all images associated with the user
+    images = db.execute('SELECT * FROM images WHERE user_id = ?', [user_id]).fetchall()
+    # Delete image files from the file system
+    for image in images:
+        full_path = os.path.join(app.config['UPLOAD_FOLDER'], image['filename']).replace('\\', '/')
+        try:
+            if os.path.exists(full_path):
+                os.remove(full_path)
+                # Clean up empty user folder if exists
+                user_folder = os.path.dirname(full_path).replace('\\', '/')
+                if os.path.exists(user_folder) and not os.listdir(user_folder):
+                    os.rmdir(user_folder)
+        except OSError as e:
+            flash(f'Помилка видалення файлу {image["filename"]}: {str(e)}', 'danger')
+    # Delete images from the database
+    db.execute('DELETE FROM images WHERE user_id = ?', [user_id])
+    # Delete the user from the database
+    db.execute('DELETE FROM users WHERE id = ?', [user_id])
+    db.commit()
+    # Clear the session
+    session.clear()
+
+    flash('Акаунт успішно видалено', 'success')
+    return redirect(url_for('home'))
+
+@app.route('/pp')
+def pp():
+    return render_template('privacy.html')
+
+@app.route('/tos')
+def tos():
+    return render_template('terms.html')
+
+@app.route('/accept_cookies')
+def accept_cookies():
+    """Set cookie to indicate user has accepted cookies."""
+    response = make_response(redirect(request.referrer or url_for('home')))
+    response.set_cookie('cookies_accepted', 'true', max_age=365*24*60*60)  # 1 year
+    return response
+
 @app.route('/static/sw.js')
 def sw():
     response = make_response(
@@ -561,4 +773,4 @@ def sw():
 if __name__ == '__main__':
     from waitress import serve
     serve(app, host='localhost', port=5000)
-    # app.run(port=1337, debug=True)
+    # app.run(host="localhost", port=1337, debug=True)

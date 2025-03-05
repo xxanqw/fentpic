@@ -5,7 +5,7 @@ CREATE TABLE users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     username TEXT UNIQUE NOT NULL,
     password TEXT,
-    github_id TEXT UNIQUE,
+    google_id TEXT UNIQUE,
     email TEXT,
     avatar_url TEXT
 );
