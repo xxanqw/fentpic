@@ -547,7 +547,7 @@ def google_login():
         authorization_endpoint,
         params={
             "client_id": GOOGLE_CLIENT_ID,
-            "redirect_uri": url_for('google_callback', _external=True, _scheme='http'), # Use http scheme for development
+            "redirect_uri": url_for('google_callback', _external=True, _scheme='https'), # Use http scheme for development
             "scope": "openid email profile",
             "response_type": "code",
             "prompt": "consent",
@@ -572,7 +572,7 @@ def google_callback():
             "code": code,
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": url_for('google_callback', _external=True, _scheme='http'), # Use http scheme for development
+            "redirect_uri": url_for('google_callback', _external=True, _scheme='https'), # Use http scheme for development
             "grant_type": "authorization_code"
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
