@@ -1,82 +1,103 @@
 {% extends "base.html" %}
 {% block title %}Профіль{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card profile-card">
-            <div class="card-body">
-                <div class="text-center">
-                    <div class="avatar-container">
-                        <form action="{{ url_for('change_avatar') }}" method="post" enctype="multipart/form-data"
-                            id="avatarForm">
-                            <input type="file" name="avatar" id="avatarInput" accept=".jpg,.jpeg,.png,.gif,.webp"
-                                hidden>
-                            {% if user.avatar_url %}
-                            <img src="{{ url_for('static', filename=user.avatar_url) }}" class="profile-avatar"
-                                alt="Avatar">
-                            {% else %}
-                            <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.id }}"
-                                class="profile-avatar" alt="Avatar">
-                            {% endif %}
-                            <div class="avatar-overlay">
-                                <i class="fas fa-camera"></i>
-                                <span>Змінити аватар</span>
-                            </div>
-                        </form>
-                    </div>
-                    <h3 class="mt-3">{{ user.username }}</h3>
-                    {% if user.email %}
-                    <p>{{ user.email }}</p>
+<div class="profile-container">
+    <div class="profile-header">
+        <h2>Профіль користувача</h2>
+        <p class="profile-subtitle">Керуйте своїм обліковим записом та налаштуваннями</p>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="avatar-container">
+                    {% if user.avatar_url %}
+                    <img src="{{ user.avatar_url }}" class="profile-avatar" alt="Avatar">
+                    {% else %}
+                    <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ user.id }}" class="profile-avatar" alt="Avatar">
                     {% endif %}
                 </div>
-
-                <div class="container mt-3">
-                    <h5 class="small">Використано: {{ (total_size / 1024 / 1024) | round(2) }} MB з 500 MB</h5>
-                    <div class="progress">
-                        {% if percent < 50 %} <div
-                            class="progress-bar bg-success d-flex align-items-center justify-content-center"
-                            role="progressbar" style="width: {{ percent|safe }}%;"
-                            aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0"
-                            aria-valuemax="500">
-                            {{ percent | round(2) }}%
+                <div class="user-details">
+                    <h3>{{ user.username }}</h3>
+                    {% if user.email %}
+                    <p class="user-email"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                    {% else %}
+                    <p class="user-email text-muted"><i class="fas fa-envelope"></i> Email не додано</p>
+                    {% endif %}
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <span class="stat-value">{{ image_count }}</span>
+                            <span class="stat-label">Зображень</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value">{{ (total_size / 1024 / 1024) | round(2) }}</span>
+                            <span class="stat-label">MB</span>
+                        </div>
                     </div>
-                    {% elif percent < 90 %} <div
-                        class="progress-bar bg-warning d-flex align-items-center justify-content-center"
-                        role="progressbar" style="width: {{ percent|safe }}%;"
+                </div>
+            </div>
+
+
+            <div class="storage-info">
+                <div class="storage-header">
+                    <h5>Використання сховища</h5>
+                    <span class="storage-text">{{ (total_size / 1024 / 1024) | round(2) }} MB з 500 MB</span>
+                </div>
+                <div class="progress">
+                    {% if percent < 50 %}
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ percent|safe }}%;"
                         aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0"
                         aria-valuemax="500">
-                        {{ percent | round(2) }}%
+                        <span class="progress-text">{{ percent | round(2) }}%</span>
+                    </div>
+                    {% elif percent < 90 %}
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{ percent|safe }}%;"
+                        aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0"
+                        aria-valuemax="500">
+                        <span class="progress-text">{{ percent | round(2) }}%</span>
+                    </div>
+                    {% else %}
+                    <div class="progress-bar bg-danger" role="progressbar" style="width: {{ percent|safe }}%;"
+                        aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0"
+                        aria-valuemax="500">
+                        <span class="progress-text">{{ percent | round(2) }}%</span>
+                    </div>
+                    {% endif %}
                 </div>
-                {% else %}
-                <div class="progress-bar bg-danger d-flex align-items-center justify-content-center"
-                    role="progressbar" style="width: {{ percent|safe }}%;"
-                    aria-valuenow="{{ (total_size / 1024 / 1024) | round(2) }}" aria-valuemin="0"
-                    aria-valuemax="500">
-                    {{ percent | round(2) }}%
+                <div class="storage-tips">
+                    {% if percent > 90 %}
+                    <p class="storage-warning"><i class="fas fa-exclamation-triangle"></i> Ваше сховище майже заповнене. Видаліть деякі зображення, щоб звільнити місце.</p>
+                    {% elif percent > 70 %}
+                    <p class="storage-note"><i class="fas fa-info-circle"></i> Ваше сховище заповнюється. Можливо, варто видалити непотрібні зображення.</p>
+                    {% else %}
+                    <p class="storage-good"><i class="fas fa-check-circle"></i> У вас достатньо вільного місця.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                {% if not user.email %}
+                <div class="action-group">
+                    <h5 class="action-title">Налаштування облікового запису</h5>        
+                    <button class="btn btn-action" data-bs-toggle="modal" data-bs-target="#emailModal">
+                        <i class="fas fa-envelope"></i>
+                        <span>Додати пошту</span>
+                    </button>
                 </div>
                 {% endif %}
+                <div class="action-group danger-zone">
+                    <h5 class="action-title text-danger">Небезпечна зона</h5>
+                    <button class="btn btn-danger-action" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                        <i class="fas fa-trash-alt"></i>
+                        <span>Видалити акаунт</span>
+                    </button>
+                </div>
             </div>
-        </div>
-
-        <div class="mt-4">
-            <button class="btn btn-outline-secondary w-100 mb-2" data-bs-toggle="modal"
-                data-bs-target="#usernameModal">
-                <i class="fas fa-user-edit"></i> Змінити ім'я користувача
-            </button>
-            {% if not user.email %}
-            <button class="btn btn-outline-info w-100 mb-2" data-bs-toggle="modal" data-bs-target="#emailModal">
-                <i class="fas fa-envelope"></i> Додати пошту
-            </button>
-            {% endif %}
-            <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                <i class="fas fa-trash-alt"></i> Видалити акаунт
-            </button>
         </div>
     </div>
 </div>
-</div>
-</div>
 
+<!-- Modals remain the same -->
 <div class="modal fade" id="usernameModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -108,45 +129,20 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <p>Ви впевнені, що хочете видалити свій акаунт? Цю дію неможливо буде скасувати.</p>
+                <div class="delete-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Ви впевнені, що хочете видалити свій акаунт? Цю дію неможливо буде скасувати.</p>
+                </div>
+                <ul class="delete-consequences">
+                    <li>Всі ваші зображення будуть видалені</li>
+                    <li>Ваш профіль буде повністю видалено</li>
+                    <li>Ви втратите доступ до всіх завантажених файлів</li>
+                </ul>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
                 <a href="{{ url_for('delete_account') }}" class="btn btn-danger">Видалити</a>
             </div>
-        </div>
-    </div>
-</div>
-
-
-
-<div class="modal fade" id="passwordModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Зміна пароля</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="{{ url_for('change_password') }}" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Поточний пароль</label>
-                        <input type="password" name="current_password" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Новий пароль</label>
-                        <input type="password" name="new_password" class="form-control" required minlength="8">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Підтвердження пароля</label>
-                        <input type="password" name="confirm_password" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                    <button type="submit" class="btn btn-primary">Зберегти</button>
-                </div>
-            </form>
         </div>
     </div>
 </div>
@@ -174,127 +170,35 @@
     </div>
 </div>
 
-<style>
-    .profile-card .container {
-        padding-left: 15px;
-        padding-right: 15px;
-    }
-
-    .profile-card .progress {
-        height: 0.75rem;
-        border-radius: 0.375rem;
-        border: 1px solid var(--border-color);
-        background-color: var(--input-bg);
-    }
-
-    .profile-card h5.small {
-        font-size: 0.8rem;
-        margin-bottom: 0.25rem;
-        color: var(--text-secondary);
-    }
-
-    .profile-card {
-        border-radius: 15px;
-        box-shadow: 0 4px 6px var(--shadow-color);
-    }
-
-    .avatar-container {
-        position: relative;
-        width: 150px;
-        height: 150px;
-        margin: 0 auto;
-        cursor: pointer;
-    }
-
-    .profile-avatar {
-        width: 150px;
-        height: 150px;
-        border-radius: 50%;
-        border: 3px solid var(--primary-color);
-        transition: filter 0.3s;
-    }
-
-    .avatar-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-
-    .avatar-container:hover .avatar-overlay {
-        opacity: 1;
-    }
-
-    .avatar-container:hover .profile-avatar {
-        filter: blur(2px);
-    }
-
-    .avatar-overlay i {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .modal-content {
-        background-color: var(--card-bg);
-        color: var(--text-primary);
-    }
-
-    .modal-header,
-    .modal-footer {
-        border-color: var(--border-color);
-    }
-
-    .modal-header .btn-close {
-        filter: invert(1);
-        opacity: 0.7;
-    }
-
-    .modal .form-control {
-        background-color: var(--input-bg);
-        border-color: var(--border-color);
-        color: var(--input-text);
-    }
-
-    .modal .form-control:focus {
-        background-color: var(--input-bg);
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25);
-    }
-
-    .modal .form-label {
-        color: var(--text-primary);
-    }
-
-    .modal .btn-secondary {
-        background-color: var(--bg-secondary);
-        border-color: var(--border-color);
-        color: var(--text-primary);
-    }
-
-    .modal .btn-secondary:hover {
-        background-color: var(--border-color);
-    }
-</style>
-
 <script>
-    document.querySelector('.avatar-container').addEventListener('click', function () {
-        document.getElementById('avatarInput').click();
-    });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Avatar upload handling
+        document.querySelector('.avatar-container').addEventListener('click', function() {
+            document.getElementById('avatarInput').click();
+        });
 
-    document.getElementById('avatarInput').addEventListener('change', function () {
-        if (this.files && this.files[0]) {
-            document.getElementById('avatarForm').submit();
-        }
+        document.getElementById('avatarInput').addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('avatarForm').submit();
+            }
+        });
+
+        // Apply theme to close buttons
+        const theme = localStorage.getItem('theme') || 'dark';
+        document.querySelectorAll('.btn-close').forEach(button => {
+            button.setAttribute('data-bs-theme', theme);
+        });
+
+        // Add animation to profile card
+        const profileCard = document.querySelector('.profile-card');
+        profileCard.style.opacity = '0';
+        profileCard.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            profileCard.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            profileCard.style.opacity = '1';
+            profileCard.style.transform = 'translateY(0)';
+        }, 100);
     });
 </script>
 {% endblock %}

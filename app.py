@@ -72,6 +72,9 @@ def get_google_provider_cfg():
 
 def get_avatar_path(filename):
     """Generate consistent avatar path"""
+    # If it starts with http/https, it's a Google avatar URL
+    if filename.startswith(('http://', 'https://')):
+        return filename
     return f"uploads/avatars/{filename}"
 
 def adapt_datetime(dt):
@@ -138,14 +141,12 @@ def load_logged_in_user():
             WHERE id = ?
         ''', [session['user_id']]).fetchone()
 
-    # Check if the user needs to be prompted for email and if it's the first request after login
+    # Simplified notification - no need to warn about adding email for password users
     if g.user and not g.user['email'] and 'email_notification_closed' not in session and request.endpoint not in ['static', 'logout', 'profile']:
         session['email_notification_prompted'] = True
         flash(
-            "Будь ласка, додайте електронну адресу у вашому профілі. "
-            "Скоро вхід буде доступний лише через Google, тому це необхідна дія. "
-            "Та НІ В ЯКОМУ РАЗІ не виходьте з акаунту без додавання пошти.",
-            "danger"
+            "Будь ласка, перевірте, що ваша електронна адреса правильно додана у вашому профілі.",
+            "info"
         )
 
 def check_cookies_accepted():
@@ -193,6 +194,9 @@ def profile():
         ORDER BY uploaded_at DESC
     ''', [session['user_id']]).fetchall()
 
+    # Count the number of images
+    image_count = len(images)
+
     import os
     total_size = 0
     for image in images:
@@ -204,7 +208,7 @@ def profile():
     percent = (total_size / limit) * 100 if limit > 0 else 0
     print(total_size, limit, percent)
 
-    return render_template('profile.html', user=user, total_size=total_size, percent=percent)
+    return render_template('profile.html', user=user, total_size=total_size, percent=percent, image_count=image_count)
 
 @app.route('/profile/add-email', methods=['POST'])
 def add_email():
@@ -228,87 +232,22 @@ def add_email():
 
 @app.route('/register', methods=['POST'])
 def register():
-    if request.method == 'POST':
-        db = get_db()
-        username = request.form['username']
-        password = request.form['password']
-        hashed_password = generate_password_hash(password)
-
-        try:
-            db.execute(
-                'INSERT INTO users (username, password) VALUES (?, ?)',
-                [username, hashed_password]
-            )
-            db.commit()
-            flash('Акаунт успішно створено!', 'success')
-            return redirect(url_for('login'))
-        except sqlite3.IntegrityError:
-            flash('Ім\'я користувача вже існує', 'danger')
-            return redirect(url_for('login'))
+    # Redirect to Google login instead of traditional registration
+    flash('Реєстрація доступна лише через Google', 'info')
+    return redirect(url_for('google_login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    # Show login page but only with Google option
     if request.method == 'POST':
-        turnstile_response = request.form.get('cf-turnstile-response')
-        verification_response = requests.post('https://challenges.cloudflare.com/turnstile/v0/siteverify', data={
-            'secret': os.getenv('CLOUDFLARE_SECRET'),
-            'response': turnstile_response
-        }).json()
-
-        if not verification_response['success']:
-            flash('Підтвердіть, що ви не робот', 'danger')
-            return redirect(url_for('login'))
-        
-        db = get_db()
-        username = request.form['username']
-        password = request.form['password']
-
-        user = db.execute(
-            'SELECT * FROM users WHERE username = ?',
-            [username]
-        ).fetchone()
-
-        if user and check_password_hash(user['password'], password):
-            session.permanent = True  # Make session permanent
-            session['user_id'] = user['id']
-            session['username'] = user['username']
-            flash('Вхід успішний!', 'success')
-            return redirect(url_for('home'))
-        else:
-            flash('Невірні облікові дані', 'danger')
+        # Redirect any form submissions to Google login
+        return redirect(url_for('google_login'))
     return render_template('login.html')
 
+# Remove password change functionality
 @app.route('/profile/change-password', methods=['POST'])
 def change_password():
-    if 'user_id' not in session:
-        flash('Будь ласка, увійдіть спочатку', 'danger')
-        return redirect(url_for('login'))
-        
-    current_password = request.form.get('current_password')
-    new_password = request.form.get('new_password')
-    confirm_password = request.form.get('confirm_password')
-    
-    if not all([current_password, new_password, confirm_password]):
-        flash('Всі поля повинні бути заповнені', 'danger')
-        return redirect(url_for('profile'))
-        
-    if new_password != confirm_password:
-        flash('Нові паролі не співпадають', 'danger')
-        return redirect(url_for('profile'))
-        
-    db = get_db()
-    user = db.execute('SELECT * FROM users WHERE id = ?', [session['user_id']]).fetchone()
-    
-    if not check_password_hash(user['password'], current_password):
-        flash('Неправильний поточний пароль', 'danger')
-        return redirect(url_for('profile'))
-        
-    hashed_password = generate_password_hash(new_password)
-    db.execute('UPDATE users SET password = ? WHERE id = ?', 
-               [hashed_password, session['user_id']])
-    db.commit()
-    
-    flash('Пароль успішно змінено', 'success')
+    flash('Зміна паролю недоступна при використанні Google аутентифікації', 'info')
     return redirect(url_for('profile'))
 
 @app.route('/profile/change-avatar', methods=['POST'])
@@ -608,7 +547,7 @@ def google_login():
         authorization_endpoint,
         params={
             "client_id": GOOGLE_CLIENT_ID,
-            "redirect_uri": url_for('google_callback', _external=True, _scheme='https'),
+            "redirect_uri": url_for('google_callback', _external=True, _scheme='http'), # Use http scheme for development
             "scope": "openid email profile",
             "response_type": "code",
             "prompt": "consent",
@@ -633,7 +572,7 @@ def google_callback():
             "code": code,
             "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
-            "redirect_uri": url_for('google_callback', _external=True, _scheme='https'),
+            "redirect_uri": url_for('google_callback', _external=True, _scheme='http'), # Use http scheme for development
             "grant_type": "authorization_code"
         },
         headers={"Content-Type": "application/x-www-form-urlencoded"}
@@ -641,6 +580,7 @@ def google_callback():
 
     if token_response.status_code != 200:
         flash("Помилка обміну токеном", "danger")
+        print(token_response.text)
         return redirect(url_for("login"))
 
     tokens = token_response.json()
@@ -715,7 +655,7 @@ def change_username():
         flash('Це ім\'я користувача вже використовується', 'danger')
     return redirect(url_for('profile'))
 
-@app.route('/profile/delete-account', methods=['POST'])
+@app.route('/profile/delete-account', methods=['GET', 'POST'])
 def delete_account():
     if 'user_id' not in session:
         flash('Будь ласка, увійдіть спочатку', 'danger')

@@ -2,25 +2,33 @@
 {% block content %}
 
 <div class="upload-container mb-4">
-    <div class="col-md-6 mx-auto">
+    <div class="col-md-8 col-lg-6 mx-auto">
         <div class="upload-card" id="dropZone">
-            <div class="upload-content" id="uploadContent">
-                <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                <h5>Перетягніть свої зображення сюди</h5>
-                <p class="text-muted">або</p>
+            <div class="upload-content clickable" id="uploadContent">
+                <div class="upload-icon-container">
+                    <i class="fas fa-cloud-upload-alt upload-icon pulse"></i>
+                </div>
+                <h4 class="upload-title">Завантажте ваші зображення</h4>
+                <p class="upload-subtitle">Перетягніть файли сюди або натисніть для вибору</p>
                 <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" id="uploadForm">
-                    <label class="upload-button">
-                        <span>Вибрати файли</span>
-                        <input type="file" name="file" accept=".jpg,.jpeg,.png,.gif,.webp" hidden id="fileInput"
-                            multiple>
-                    </label>
+                    <input type="file" name="file" accept=".jpg,.jpeg,.png,.gif,.webp" hidden id="fileInput" multiple>
                 </form>
-                <p class="upload-hint">Підтримуються: JPG, PNG, GIF, WEBP</p>
+                <div class="upload-formats mt-3">
+                    <p class="upload-hint mb-2">Підтримувані формати:</p>
+                    <div class="format-badges">
+                        <span class="badge bg-light text-dark me-1">JPG</span>
+                        <span class="badge bg-light text-dark me-1">PNG</span>
+                        <span class="badge bg-light text-dark me-1">GIF</span>
+                        <span class="badge bg-light text-dark">WEBP</span>
+                    </div>
+                    <p class="upload-limit mt-2">Максимальний розмір: <span class="badge bg-primary">20МБ</span></p>
+                </div>
             </div>
 
             <div class="preview-content" id="previewContent" style="display: none;">
+                <h5 class="preview-title mb-3">Попередній перегляд</h5>
                 <div class="preview-grid" id="previewGrid"></div>
-                <div class="preview-actions">
+                <div class="preview-actions mt-3">
                     <button class="btn btn-outline-secondary" id="cancelUpload">
                         <i class="fas fa-times"></i> Скасувати
                     </button>
@@ -36,10 +44,33 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Add this to your existing JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        if (dropZone && fileInput) {
+            dropZone.addEventListener('click', function(e) {
+                // Prevent click when clicking on preview content or buttons
+                if (e.target.closest('.preview-content') || e.target.closest('button')) {
+                    return;
+                }
+                fileInput.click();
+            });
+        }
+    });
+</script>
+
 {% if images and images|length > 0 %}
-<div class="container mt-2 text-end">
-    <button id="selectAllBtn" class="btn btn-outline-primary mb-2">Обрати всі</button>
+<div class="gallery-header">
+    <h4 class="gallery-title">Ваша галерея</h4>
+    <button id="selectAllBtn" class="btn btn-outline-primary">
+        <i class="fas fa-check-square me-1"></i>Обрати всі
+    </button>
 </div>
+
 <div class="masonry-grid" id="imageGrid">
     {% for image in images %}
     <div class="masonry-item">
@@ -52,7 +83,7 @@
                     title="Скопіювати URL зображення">
                     <i class="fas fa-link"></i>
                 </button>
-                <div class="select-overlay" style="position: absolute; top: 5px; left: 5px;">
+                <div class="select-overlay">
                     <input type="checkbox" class="select-checkbox" data-image-id="{{ image.id }}">
                 </div>
             </div>
@@ -71,13 +102,15 @@
     {% endfor %}
 </div>
 {% else %}
-<div class="masonry-grid">
+<div class="empty-gallery-container">
     <div class="empty-gallery">
-        <p>Тут будуть твої зображення</p>
+        <i class="far fa-images empty-gallery-icon"></i>
+        <h5>Тут будуть твої зображення</h5>
+        <p>Завантажте свої перші зображення вище</p>
     </div>
-
 </div>
 {% endif %}
+
 <div class="modal fade" id="deleteModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -96,12 +129,16 @@
     </div>
 </div>
 
-<div id="deleteSticky" class=""
-    style="position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); padding: 1rem; box-shadow: 0 -2px 6px rgba(0,0,0,0.3); text-align: center; z-index: 200;">
-    <form action="{{ url_for('delete_multiple_images') }}" method="POST" id="deleteForm">
-        <div id="selectedImagesInputs"></div>
-        <button type="button" class="btn btn-danger" id="multipleDeleteBtn">Видалити</button>
-    </form>
+<div id="deleteSticky" class="delete-sticky">
+    <div class="delete-sticky-content">
+        <span class="delete-count" id="deleteCount">0 обрано</span>
+        <form action="{{ url_for('delete_multiple_images') }}" method="POST" id="deleteForm">
+            <div id="selectedImagesInputs"></div>
+            <button type="button" class="btn btn-danger" id="multipleDeleteBtn">
+                <i class="fas fa-trash me-1"></i>Видалити обрані
+            </button>
+        </form>
+    </div>
 </div>
 
 <div class="modal fade" id="deleteMultipleModal" tabindex="-1">
@@ -122,644 +159,510 @@
     </div>
 </div>
 
-<style>
-    .upload-card {
-        border-radius: 1rem;
-        background: var(--card-bg);
-        padding: 2rem;
-        text-align: center;
-        border: 2px dashed var(--border-color);
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 6px var(--shadow-color);
-        color: var(--text-primary);
-    }
-
-    .upload-card.dragover {
-        border-color: var(--primary-color);
-        background: var(--bg-secondary);
-        transform: scale(1.02);
-    }
-
-    .upload-icon {
-        font-size: 3.5rem;
-        color: var(--primary-color);
-        margin-bottom: 1.5rem;
-    }
-
-    .upload-button {
-        display: inline-block;
-        padding: 0.8rem 2rem;
-        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        border-radius: 2rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-
-    .upload-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px var(--shadow-color);
-    }
-
-    .upload-hint {
-        color: var(--text-secondary);
-        margin-top: 1rem;
-    }
-
-    .preview-content {
-        padding: 1rem;
-        background: var(--bg-secondary);
-        border-radius: 0.5rem;
-    }
-
-    #imagePreview {
-        max-height: 200px;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 4px var(--shadow-color);
-    }
-
-    .btn-gradient {
-        background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        border: none;
-        transition: all 0.3s ease;
-    }
-
-    .btn-gradient:hover {
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px var(--shadow-color);
-    }
-
-    .btn-close {
-        transition: all 0.3s ease;
-    }
-
-    .preview-content {
-        padding: 1rem;
-    }
-
-    .preview-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .preview-item {
-        position: relative;
-        aspect-ratio: 1;
-        border-radius: 0.5rem;
-        overflow: hidden;
-    }
-
-    .preview-item img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .preview-item .remove-preview {
-        position: absolute;
-        top: 5px;
-        right: 5px;
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 24px;
-        height: 24px;
-        cursor: pointer;
-    }
-
-    .remove-preview {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-
-    .remove-preview:hover {
-        background: rgba(0, 0, 0, 0.7);
-    }
-
-    /* Update masonry grid styles */
-    .masonry-grid {
-        display: grid;
-        gap: 1rem;
-        padding: 1rem;
-        background-color: var(--bg-secondary);
-        border-radius: 1rem;
-
-        /* Desktop layout */
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        grid-auto-rows: 250px;
-    }
-
-    /* Tablet breakpoint */
-    @media screen and (max-width: 992px) {
-        .masonry-grid {
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            grid-auto-rows: 200px;
-            gap: 0.75rem;
-            padding: 0.75rem;
-        }
-    }
-
-    /* Mobile breakpoint */
-    @media screen and (max-width: 576px) {
-        .masonry-grid {
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            grid-auto-rows: 150px;
-            gap: 0.5rem;
-            padding: 0.5rem;
-        }
-
-        .masonry-item.wide,
-        .masonry-item.tall,
-        .masonry-item.large {
-            grid-column: span 1;
-            grid-row: span 1;
-        }
-
-        .card:hover {
-            transform: none;
-        }
-
-        .card:hover .card-img {
-            transform: none;
-        }
-
-        .btn-copy,
-        .card-overlay {
-            opacity: 1;
-        }
-    }
-
-    .masonry-item {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .masonry-item.loaded {
-        opacity: 1;
-    }
-
-    .masonry-item.wide {
-        grid-column: span 2;
-    }
-
-    .masonry-item.tall {
-        grid-row: span 2;
-    }
-
-    .masonry-item.large {
-        grid-column: span 2;
-        grid-row: span 2;
-    }
-
-    /* Стилі картки */
-    .card {
-        height: 100%;
-        overflow: hidden;
-        position: relative;
-        transition: transform 0.3s ease;
-        border-radius: 1rem;
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .card-img-wrapper {
-        height: 100%;
-        width: 100%;
-        position: relative;
-    }
-
-    .card-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-    }
-
-    .card:hover .card-img {
-        transform: scale(1.05);
-    }
-
-    .btn-copy {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        background: rgba(0, 0, 0, 0.7);
-        border: none;
-        border-radius: 50%;
-        width: 32px;
-        height: 32px;
-        color: white;
-        cursor: pointer;
-        opacity: 0;
-        transition: all 0.3s ease;
-        z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .card:hover .btn-copy {
-        opacity: 1;
-    }
-
-    .card-overlay {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0, 0, 0, 0.7);
-        padding: 0.5rem;
-        opacity: 0;
-        transition: opacity 0.3s;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        z-index: 1;
-    }
-
-    .card:hover .card-overlay {
-        opacity: 1;
-    }
-
-    .timestamp {
-        color: white;
-        margin: 0;
-    }
-
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        border-radius: 1rem;
-        z-index: 100;
-    }
-
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid var(--primary-color);
-        border-top: 5px solid transparent;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 1rem;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    .modal-content {
-        background: var(--card-bg);
-        color: var(--text-primary);
-        border: none;
-        border-radius: 1rem;
-    }
-
-    .modal-header {
-        border-bottom-color: var(--border-color);
-    }
-
-    .modal-footer {
-        border-top-color: var(--border-color);
-    }
-
-    .empty-gallery {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: var(--text-secondary);
-        border: dashed 2px var(--border-color);
-        border-radius: 20px;
-        grid-column: span 4;
-    }
-
-    .select-overlay input.select-checkbox {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-    }
-
-    .select-checkbox {
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--secondary-color);
-        background-color: var(--bg-secondary);
-        border-radius: 1rem;
-        cursor: pointer;
-        position: relative;
-        outline: none;
-        transition: background-color 0.3s, border-color 0.3s;
-    }
-
-    .select-checkbox:checked {
-        background-color: var(--primary-color);
-        border-color: var(--primary-color);
-    }
-
-    .select-checkbox:checked::after {
-        content: '';
-        position: absolute;
-        top: 1px;
-        left: 6px;
-        width: 6px;
-        height: 12px;
-        border: solid white;
-        border-width: 0 2px 2px 0;
-        transform: rotate(45deg);
-    }
-
-    #deleteSticky {
-        transform: translateY(100%);
-        opacity: 0;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    #deleteSticky.visible {
-        transform: translateY(0);
-        opacity: 1;
-    }
-</style>
-
 <script>
+    // Theme handling
     const theme = localStorage.getItem('theme') || 'dark';
     document.querySelectorAll('.btn-close').forEach(button => {
-        button.setAttribute('data-bs-theme', theme);
+        if (button) button.setAttribute('data-bs-theme', theme);
     });
 
+    // Constants
     const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB in bytes
 
+    // Image handling functions
     function handleImageLoad(img) {
+        if (!img) return;
+        
         const item = img.closest('.masonry-item');
         if (item) {
+            // Clear any previous classes that might affect layout
+            item.classList.remove('wide', 'tall', 'large');
+            
+            // Determine and add the right class based on image dimensions
             const className = getImageClass(img);
             if (className) item.classList.add(className);
+            
+            // Make image visible
+            item.style.opacity = '1';
             item.classList.add('loaded');
+            
+            // Wait for all images to load before triggering a final refresh
+            if (document.querySelectorAll('.masonry-item:not(.loaded)').length === 0) {
+                // All images loaded, final layout adjustment
+                setTimeout(fixGridLayout, 100);
+            }
         }
     }
-
+    
+    // Improved image class determination to prevent layout issues
     function getImageClass(img) {
+        if (!img || !img.naturalWidth || !img.naturalHeight) return '';
+        
         const ratio = img.naturalWidth / img.naturalHeight;
-        if (ratio > 1.7) return 'wide';
-        if (ratio < 0.7) return 'tall';
-        if (img.naturalWidth > 2000 || img.naturalHeight > 2000) return 'large';
-        return '';
+        
+        // More conservative thresholds to prevent layout issues
+        if (ratio > 1.8) return 'wide';      // Very wide images
+        if (ratio < 0.6) return 'tall';      // Very tall images
+        if (ratio > 1.3 && ratio < 1.8 && 
+            (img.naturalWidth > 1500 || img.naturalHeight > 1500)) {
+            return 'wide';  // Large landscape images
+        }
+        if (ratio > 0.6 && ratio < 0.8 && 
+            (img.naturalWidth > 1500 || img.naturalHeight > 1500)) {
+            return 'tall';  // Large portrait images
+        }
+        if (img.naturalWidth > 2500 || img.naturalHeight > 2500) {
+            return 'large'; // Very large images
+        }
+        
+        return ''; // Default size for most images
+    }
+    
+    // Completely new function to fix grid layout issues
+    function fixGridLayout() {
+        console.log("Fixing grid layout");
+        const grid = document.getElementById('imageGrid');
+        if (!grid) return;
+        
+        // Apply visibility to all items
+        const items = grid.querySelectorAll('.masonry-item');
+        items.forEach(item => {
+            item.style.opacity = '1';
+            item.style.visibility = 'visible';
+        });
+        
+        // Force grid redraw
+        grid.style.display = 'none';
+        void grid.offsetHeight; // Force reflow
+        grid.style.display = 'grid';
+    }
+
+    // Replace the refreshMasonryLayout function with our simpler version
+    function refreshMasonryLayout() {
+        fixGridLayout();
     }
 
     function copyImageUrl(button) {
-        const url = button.dataset.url.replace('http://', 'https://');
+        if (!button || !button.dataset || !button.dataset.url) return;
+        
+        // Safer URL handling - only replace http with https if it starts with http://
+        const url = button.dataset.url.startsWith('http://') 
+            ? button.dataset.url.replace('http://', 'https://') 
+            : button.dataset.url;
+            
         navigator.clipboard.writeText(url).then(() => {
             const icon = button.querySelector('i');
+            if (!icon) return;
+            
             icon.className = 'fas fa-check';
-            setTimeout(() => { icon.className = 'fas fa-link'; }, 2000);
+            button.style.background = 'var(--primary-color)';
+            setTimeout(() => {
+                icon.className = 'fas fa-link';
+                button.style.background = 'rgba(0, 0, 0, 0.7)';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy URL: ', err);
         });
     }
+    
+    // Make copyImageUrl available globally
+    window.copyImageUrl = copyImageUrl;
+
+    // Initialize all images that are already in the DOM
+    document.querySelectorAll('.masonry-item img').forEach(img => {
+        if (!img) return;
+        
+        if (img.complete) {
+            handleImageLoad(img);
+        } else {
+            img.addEventListener('load', function() {
+                handleImageLoad(this);
+            });
+            
+            // Also add error handler to ensure visibility even if image fails
+            img.addEventListener('error', function() {
+                const item = this.closest('.masonry-item');
+                if (item) {
+                    item.classList.add('loaded');
+                    item.style.opacity = '1';
+                }
+            });
+        }
+    });
+
+    // Main initialization when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap modals
+        const deleteModalElement = document.getElementById('deleteModal');
+        const deleteMultipleModalElement = document.getElementById('deleteMultipleModal');
+        
+        const deleteModal = deleteModalElement ? new bootstrap.Modal(deleteModalElement) : null;
+        const deleteMultipleModal = deleteMultipleModalElement ? new bootstrap.Modal(deleteMultipleModalElement) : null;
+        
+        // Delete single image functionality
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        let currentDeleteUrl = '';
+        
+        document.querySelectorAll('.btn-danger[data-delete-url]').forEach(btn => {
+            if (!btn) return;
+            
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                currentDeleteUrl = this.getAttribute('data-delete-url');
+                if (deleteModal) deleteModal.show();
+            });
+        });
+        
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (currentDeleteUrl) {
+                    window.location.href = currentDeleteUrl;
+                }
+            });
+        }
+        
+        // Multiple delete functionality
+        const multipleDeleteBtn = document.getElementById('multipleDeleteBtn');
+        const confirmMultipleDelete = document.getElementById('confirmMultipleDelete');
+        const deleteForm = document.getElementById('deleteForm');
+        const selectAllBtn = document.getElementById('selectAllBtn');
+        const deleteCount = document.getElementById('deleteCount');
+        let allSelected = false;
+        
+        // Initialize selection handling
+        if (selectAllBtn) {
+            selectAllBtn.addEventListener('click', function() {
+                const checkboxes = document.querySelectorAll('.select-checkbox');
+                if (checkboxes.length === 0) return;
+                
+                // Check the current state to toggle
+                const anyUnchecked = Array.from(checkboxes).some(cb => !cb.checked);
+                
+                // Update all checkboxes based on state
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = anyUnchecked;
+                });
+                
+                // Update the button text based on actual checkbox state
+                updateSelectAllButtonText();
+                updateDeleteSticky();
+            });
+        }
+        
+        if (multipleDeleteBtn) {
+            multipleDeleteBtn.addEventListener('click', function() {
+                const selected = document.querySelectorAll('.select-checkbox:checked');
+                if (selected.length > 0 && deleteMultipleModal) {
+                    deleteMultipleModal.show();
+                }
+            });
+        }
+        
+        if (confirmMultipleDelete) {
+            confirmMultipleDelete.addEventListener('click', function() {
+                if (deleteForm) {
+                    deleteForm.submit();
+                }
+            });
+        }
+        
+        // Handle individual checkbox changes
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('select-checkbox')) {
+                updateDeleteSticky();
+                updateSelectAllButtonText();
+            }
+        });
+        
+        // File upload functionality
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadContent = document.getElementById('uploadContent');
+        const previewContent = document.getElementById('previewContent');
+        const previewGrid = document.getElementById('previewGrid');
+        const fileCount = document.getElementById('fileCount');
+        const cancelUpload = document.getElementById('cancelUpload');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        
+        // Initialize file upload elements if they exist
+        if (fileInput) {
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    handleFiles(this.files);
+                }
+            });
+        }
+        
+        if (dropZone) {
+            // Handle drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+        }
+        
+        if (cancelUpload) {
+            cancelUpload.addEventListener('click', resetUpload);
+        }
+        
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', function(e) {
+                if (fileInput && (!fileInput.files || fileInput.files.length === 0)) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'flex';
+                }
+            });
+        }
+        
+        // Helper function to update Select All button text
+        function updateSelectAllButtonText() {
+            if (!selectAllBtn) return;
+            
+            const checkboxes = document.querySelectorAll('.select-checkbox');
+            if (checkboxes.length === 0) return;
+            
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            const anyChecked = Array.from(checkboxes).some(cb => cb.checked);
+            
+            if (allChecked) {
+                selectAllBtn.innerHTML = '<i class="fas fa-times-square me-1"></i>Зняти обране';
+            } else {
+                selectAllBtn.innerHTML = '<i class="fas fa-check-square me-1"></i>Обрати всі';
+            }
+        }
+
+        // Add window resize handler with improved layout fixing
+        window.addEventListener('resize', debounce(function() {
+            console.log("Window resized, fixing layout");
+            fixGridLayout();
+        }, 200));
+        
+        // Initial layout fix with a safer approach
+        setTimeout(function() {
+            // Ensure all masonry items are visible
+            document.querySelectorAll('.masonry-item').forEach(item => {
+                item.classList.add('loaded');
+                item.style.opacity = '1';
+            });
+            
+            // Final layout adjustment
+            fixGridLayout();
+            console.log("Initial layout applied");
+        }, 500);
+    });
 
     // Multiple selection handling
     function updateDeleteSticky() {
         const checkboxes = document.querySelectorAll('.select-checkbox');
+        if (!checkboxes || checkboxes.length === 0) return;
+        
         const selected = Array.from(checkboxes).filter(cb => cb.checked);
         const deleteSticky = document.getElementById('deleteSticky');
         const selectedInputsContainer = document.getElementById('selectedImagesInputs');
+        const deleteCount = document.getElementById('deleteCount');
+
+        if (!deleteSticky || !selectedInputsContainer || !deleteCount) return;
+
+        // Clear previous inputs
         selectedInputsContainer.innerHTML = '';
+        
+        // Add new inputs for selected images
         selected.forEach(cb => {
+            if (!cb.dataset || !cb.dataset.imageId) return;
+            
             const input = document.createElement('input');
             input.type = 'hidden';
             input.name = 'image_ids';
             input.value = cb.dataset.imageId;
             selectedInputsContainer.appendChild(input);
         });
-        const selectAllBtn = document.getElementById('selectAllBtn');
+
+        // Update UI based on selection count
         if (selected.length > 0) {
             deleteSticky.classList.add('visible');
-            selectAllBtn.textContent = 'Зняти обране';
+            deleteCount.textContent = `${selected.length} обрано`;
         } else {
             deleteSticky.classList.remove('visible');
-            selectAllBtn.textContent = 'Обрати всі';
         }
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
+    // File upload helper functions
+    function preventDefaults(e) {
+        if (!e) return;
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    function highlight() {
         const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
+        if (dropZone) dropZone.classList.add('dragover');
+    }
+    
+    function unhighlight() {
+        const dropZone = document.getElementById('dropZone');
+        if (dropZone) dropZone.classList.remove('dragover');
+    }
+    
+    function handleDrop(e) {
+        if (!e || !e.dataTransfer || !e.dataTransfer.files) return;
+        
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleFiles(files);
+    }
+    
+    function handleFiles(files) {
+        if (!files || files.length === 0) return;
+        
         const uploadContent = document.getElementById('uploadContent');
         const previewContent = document.getElementById('previewContent');
-        const cancelUpload = document.getElementById('cancelUpload');
-        const uploadForm = document.getElementById('uploadForm');
-        const selectAllBtn = document.getElementById('selectAllBtn');
-        const multipleDeleteBtn = document.getElementById('multipleDeleteBtn');
-        const deleteMultipleModal = new bootstrap.Modal(document.getElementById('deleteMultipleModal'));
-        const confirmMultipleDelete = document.getElementById('confirmMultipleDelete');
-
-        if (multipleDeleteBtn) {
-            multipleDeleteBtn.addEventListener('click', function (e) {
-                e.preventDefault();
-                deleteMultipleModal.show();
-            });
-        }
-
-        if (confirmMultipleDelete) {
-            confirmMultipleDelete.addEventListener('click', function () {
-                document.getElementById('deleteForm').submit();
-            });
-        }
-
-        if (selectAllBtn) {
-            selectAllBtn.addEventListener('click', function () {
-                const checkboxes = document.querySelectorAll('.select-checkbox');
-                const anySelected = Array.from(checkboxes).some(cb => cb.checked);
-                if (anySelected) {
-                    checkboxes.forEach(cb => cb.checked = false);
-                    this.textContent = 'Обрати всі';
-                } else {
-                    checkboxes.forEach(cb => cb.checked = true);
-                    this.textContent = 'Зняти обране';
-                }
-                updateDeleteSticky();
-            });
-        }
-
-        function removePreview(button) {
-            const item = button.closest('.preview-item');
-            const index = Array.from(item.parentNode.children).indexOf(item);
-            const newFiles = new DataTransfer();
-            Array.from(fileInput.files).forEach((file, i) => {
-                if (i !== index) newFiles.items.add(file);
-            });
-            fileInput.files = newFiles.files;
-            document.getElementById('fileCount').textContent = newFiles.files.length;
-            item.remove();
-            if (newFiles.files.length === 0) {
-                uploadContent.style.display = 'block';
-                previewContent.style.display = 'none';
+        const previewGrid = document.getElementById('previewGrid');
+        const fileCount = document.getElementById('fileCount');
+        const fileInput = document.getElementById('fileInput');
+        
+        if (!uploadContent || !previewContent || !previewGrid || !fileCount || !fileInput) return;
+        
+        // Show preview section
+        uploadContent.style.display = 'none';
+        previewContent.style.display = 'block';
+        
+        // Clear previous previews
+        previewGrid.innerHTML = '';
+        
+        // Validate and create temporary FileList for the form
+        const validFiles = Array.from(files).filter(file => {
+            // Check file type
+            if (!ALLOWED_TYPES.includes(file.type)) {
+                console.warn(`File skipped: ${file.name} - Invalid type`);
+                return false;
             }
-        }
-        window.removePreview = removePreview;
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, preventDefaults, false);
+            
+            // Check file size
+            if (file.size > MAX_FILE_SIZE) {
+                console.warn(`File skipped: ${file.name} - Too large (${Math.round(file.size/1024/1024)}MB)`);
+                return false;
+            }
+            
+            return true;
         });
-        function highlight() { dropZone.classList.add('dragover'); }
-        function unhighlight() { dropZone.classList.remove('dragover'); }
-        ['dragenter', 'dragover'].forEach(eventName => { dropZone.addEventListener(eventName, highlight, false); });
-        ['dragleave', 'drop'].forEach(eventName => { dropZone.addEventListener(eventName, unhighlight, false); });
-
-        function isValidImage(file) {
-            const extension = '.' + file.name.split('.').pop().toLowerCase();
-            return ALLOWED_TYPES.includes(file.type) && ALLOWED_EXTENSIONS.includes(extension);
+        
+        // Create a new DataTransfer object to store valid files
+        const dataTransfer = new DataTransfer();
+        validFiles.forEach(file => dataTransfer.items.add(file));
+        
+        // Update file input with valid files
+        fileInput.files = dataTransfer.files;
+        
+        // Update file count
+        fileCount.textContent = validFiles.length;
+        
+        // If no valid files, reset
+        if (validFiles.length === 0) {
+            resetUpload();
+            return;
         }
-        function handleFiles(files, append = false) {
-            const previewGrid = document.getElementById('previewGrid');
-            if (!append) { previewGrid.innerHTML = ''; }
-            let validFiles = new DataTransfer();
-            let invalidCount = 0;
-            if (append && fileInput.files) {
-                Array.from(fileInput.files).forEach(file => { validFiles.items.add(file); });
-            }
-            const existingFiles = new Map();
-            Array.from(validFiles.files).forEach(file => {
-                const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-                existingFiles.set(fileKey, file);
-            });
-            Array.from(files).forEach(file => {
-                const fileKey = `${file.name}-${file.size}-${file.lastModified}`;
-                if (!existingFiles.has(fileKey) && isValidImage(file)) {
-                    existingFiles.set(fileKey, file);
-                    validFiles.items.add(file);
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        if (e.target && e.target.result) {
-                            const div = document.createElement('div');
-                            div.className = 'preview-item';
-                            div.innerHTML = `
-                                <img src="${e.target.result}" alt="Попередній перегляд">
-                                <button class="remove-preview" onclick="removePreview(this)">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            `;
-                            previewGrid.appendChild(div);
+        
+        // Create previews for valid files
+        validFiles.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                if (!e.target || !e.target.result) return;
+                
+                const preview = document.createElement('div');
+                preview.className = 'preview-item';
+                preview.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <div class="file-info">${file.name} (${Math.round(file.size/1024)}KB)</div>
+                    <button type="button" class="remove-preview">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                if (previewGrid) previewGrid.appendChild(preview);
+                
+                // Remove preview functionality
+                const removeBtn = preview.querySelector('.remove-preview');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function() {
+                        // Find index of this file in the current file list
+                        const currentFiles = Array.from(fileInput.files);
+                        const fileIndex = currentFiles.findIndex(f => 
+                            f.name === file.name && f.size === file.size && f.type === file.type);
+                            
+                        if (fileIndex > -1) {
+                            // Create new file list without this file
+                            const newDataTransfer = new DataTransfer();
+                            currentFiles.forEach((f, i) => {
+                                if (i !== fileIndex) newDataTransfer.items.add(f);
+                            });
+                            
+                            // Update file input
+                            fileInput.files = newDataTransfer.files;
                         }
-                    };
-                    reader.onerror = function (error) {
-                        console.error('Error reading file:', error);
-                        flash('Помилка читання файлу', 'danger');
-                    };
-                    reader.readAsDataURL(file);
-                } else if (!isValidImage(file)) { invalidCount++; }
-            });
-            fileInput.files = validFiles.files;
-            document.getElementById('fileCount').textContent = validFiles.files.length;
-            if (validFiles.files.length > 0) {
-                uploadContent.style.display = 'none';
-                previewContent.style.display = 'block';
-            } else {
-                uploadContent.style.display = 'block';
-                previewContent.style.display = 'none';
-            }
-            if (invalidCount > 0) {
-                flash(`${invalidCount} файл(ів) пропущено. Підтримуються лише зображення (JPG, PNG, GIF, WEBP)`, 'warning');
-            }
-        }
-
-        dropZone.addEventListener('drop', function (e) {
-            e.preventDefault();
-            const dt = e.dataTransfer;
-            handleFiles(dt.files, true);
-            unhighlight();
+                        
+                        // Remove preview from UI
+                        preview.remove();
+                        
+                        // Update count and check if we need to reset
+                        if (fileCount) fileCount.textContent = fileInput.files.length;
+                        
+                        if (fileInput.files.length === 0) {
+                            resetUpload();
+                        }
+                    });
+                }
+            };
+            
+            reader.onerror = function() {
+                console.error(`Error reading file: ${file.name}`);
+            };
+            
+            reader.readAsDataURL(file);
         });
-        fileInput.addEventListener('change', function () {
-            const previewGrid = document.getElementById('previewGrid');
-            previewGrid.innerHTML = '';
-            handleFiles(this.files, false);
-        });
-        cancelUpload.addEventListener('click', function () {
-            fileInput.value = '';
-            const previewGrid = document.getElementById('previewGrid');
-            if (previewGrid) { previewGrid.innerHTML = ''; }
-            document.getElementById('fileCount').textContent = '0';
-            uploadContent.style.display = 'block';
-            previewContent.style.display = 'none';
-            dropZone.classList.remove('dragover');
-        });
-        uploadForm.addEventListener('submit', function (e) {
-            if (!fileInput.files || !fileInput.files[0]) {
-                e.preventDefault();
-                flash('Будь ласка, виберіть файл для завантаження', 'danger');
-                return;
-            }
-            window.scrollTo({ top: 0, behavior: 'instant' });
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            loadingOverlay.style.display = 'flex';
-            cancelUpload.disabled = true;
-            document.querySelector('button[form="uploadForm"]').disabled = true;
-        });
-        function flash(message, type) {
-            const flashDiv = document.createElement('div');
-            flashDiv.className = `alert alert-${type} alert-dismissible fade show`;
-            flashDiv.innerHTML = `
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            `;
-            document.querySelector('.upload-container').insertAdjacentElement('beforebegin', flashDiv);
-            setTimeout(() => flashDiv.remove(), 5000);
-        }
-
-        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-        const confirmDeleteBtn = document.getElementById('confirmDelete');
-        document.querySelectorAll('[data-delete-url]').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.preventDefault();
-                confirmDeleteBtn.href = this.getAttribute('data-delete-url');
-                deleteModal.show();
-            });
-        });
-
-        const grid = document.querySelector('#imageGrid');
-        const images = grid.querySelectorAll('img');
-        images.forEach(img => {
-            if (img.complete) { handleImageLoad(img); }
-            else { img.addEventListener('load', () => handleImageLoad(img)); }
-        });
-
-        // Listen for changes in selection checkboxes
-        document.querySelectorAll('.select-checkbox').forEach(cb => {
-            cb.addEventListener('change', updateDeleteSticky);
-        });
-    });
-
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/static/sw.js')
-            .then(registration => { console.log('Service Worker registered'); })
-            .catch(error => { console.error('Service Worker registration failed:', error); });
+    }
+    
+    function resetUpload() {
+        const uploadContent = document.getElementById('uploadContent');
+        const previewContent = document.getElementById('previewContent');
+        const previewGrid = document.getElementById('previewGrid');
+        const fileInput = document.getElementById('fileInput');
+        const fileCount = document.getElementById('fileCount');
+        
+        if (!uploadContent || !previewContent || !previewGrid || !fileInput || !fileCount) return;
+        
+        uploadContent.style.display = 'block';
+        previewContent.style.display = 'none';
+        previewGrid.innerHTML = '';
+        fileInput.value = '';
+        fileCount.textContent = '0';
+    }
+    
+    // Debounce function to prevent excessive refreshes
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            const context = this;
+            const args = arguments;
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
     }
 </script>
+
 {% endblock %}

@@ -5,8 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FENTPIC{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="icon" href="static/fplogo.png">
     <script>
         (function () {
@@ -15,360 +19,32 @@
         })();
     </script>
     <style>
-        :root[data-theme="light"] {
-            --bg-primary: #f8f9fa;
-            --bg-secondary: #ffffff;
-            --primary-color: #2ecc71;
-            --secondary-color: #27ae60;
-            --text-primary: #000000;
-            --text-secondary: #34495e;
-            --border-color: #e0e0e0;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --navbar-bg: #2ecc71;
-            --card-bg: #ffffff;
-            --input-bg: #ffffff;
-            --input-text: #2c3e50;
-            --footer-bg: #f1f1f1;
-            --footer-text: #666;
-            --scrollbar-bg: #f1f1f1;
-            --scrollbar-thumb: #2ecc71;
-            --scrollbar-hover: #27ae60;
+        /* Burger Menu Animation */
+        .navbar-toggler .burger-icon {
+            position: relative;
+            transition: all 0.3s ease;
         }
-
-        :root[data-theme="dark"] {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --primary-color: #2ecc71;
-            --secondary-color: #27ae60;
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --border-color: #404040;
-            --shadow-color: rgba(0, 0, 0, 0.3);
-            --navbar-bg: #2d2d2d;
-            --card-bg: #333333;
-            --input-bg: #404040;
-            --input-text: #ffffff;
-            --footer-bg: #222;
-            --footer-text: #999;
-            --scrollbar-bg: #2d2d2d;
-            --scrollbar-thumb: #2ecc71;
-            --scrollbar-hover: #27ae60;
+        
+        .navbar-toggler .burger-icon .bar {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background-color: var(--text-primary);
+            margin: 4px 0;
+            transition: all 0.3s ease;
+            border-radius: 3px;
         }
-
-        body {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            transition: background-color 0.3s, color 0.3s;
+        
+        .navbar-toggler[aria-expanded="true"] .burger-icon .bar:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
         }
-
-        .navbar {
-            background-color: var(--navbar-bg);
-            padding: 1rem 2rem;
+        
+        .navbar-toggler[aria-expanded="true"] .burger-icon .bar:nth-child(2) {
+            opacity: 0;
         }
-
-        .navbar-brand,
-        .nav-link {
-            color: var(--text-primary) !important;
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border: none;
-            box-shadow: 0 4px 6px var(--shadow-color);
-            transition: transform 0.2s, box-shadow 0.3s;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px var(--shadow-color);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-
-        .alert {
-            border-radius: 0;
-            margin-bottom: 0;
-        }
-
-        .form-control {
-            background-color: var(--input-bg);
-            border-color: var(--border-color);
-            color: var(--input-text);
-        }
-
-        .form-control:focus {
-            background-color: var(--input-bg);
-            border-color: var(--primary-color);
-            color: var(--input-text);
-            box-shadow: 0 0 0 0.25rem rgba(46, 204, 113, 0.25);
-        }
-
-        .theme-toggle {
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: transparent;
-            border: none;
-            color: var(--text-primary);
-            margin-left: 1rem;
-            transition: background-color 0.3s;
-        }
-
-        .theme-toggle:hover {
-            background: rgba(46, 204, 113, 0.1);
-        }
-
-        .footer {
-            background-color: var(--footer-bg);
-            color: var(--footer-text);
-            padding: 3rem 0 1.5rem;
-            margin-top: 3rem;
-        }
-
-        .footer-section {
-            height: 100%;
-        }
-
-        .footer h5 {
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .footer-links {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-links li {
-            margin-bottom: 1rem;
-        }
-
-        .footer-links a {
-            color: var(--footer-text);
-            text-decoration: none;
-            transition: color 0.2s;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary-color);
-        }
-
-        .social-links a {
-            color: var(--footer-text);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .social-links a:hover {
-            color: var(--primary-color);
-        }
-
-        hr {
-            border-color: var(--border-color);
-            opacity: 0.1;
-        }
-
-        .copyright {
-            color: var(--footer-text);
-            font-size: 0.9rem;
-        }
-
-        @media (max-width: 768px) {
-            .footer {
-                padding: 2rem 0 1rem;
-            }
-
-            .footer-section {
-                text-align: center;
-            }
-
-            .social-links {
-                justify-content: center;
-                display: flex;
-                margin-top: 1rem;
-            }
-        }
-
-        .profile-pic {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid var(--primary-color);
-        }
-
-        .profile-link {
-            display: flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 2rem;
-            transition: background-color 0.3s;
-        }
-
-        .profile-link:hover {
-            background-color: rgba(46, 204, 113, 0.1);
-        }
-
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--scrollbar-bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--scrollbar-hover);
-        }
-
-        /* Firefox */
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-bg);
-        }
-
-        .navbar-toggler-icon {
-            color: var(--text-primary);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #backToTopBtn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 99;
-            display: none;
-            background-color: var(--primary-color);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            color: #fff;
-            transition: all 0.3s;
-            font-size: larger;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #backToTopBtn:hover {
-            background-color: var(--secondary-color);
-        }
-
-        /* GDPR styles */
-        #gdpr-overlay {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background-color: var(--bg-secondary);
-            box-shadow: 0 -2px 10px var(--shadow-color);
-            z-index: 1000;
-            padding: 20px;
-            display: none;
-        }
-
-        #gdpr-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            text-align: center;
-        }
-
-        #gdpr-content h4 {
-            margin: 0;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-        }
-
-        #gdpr-content p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.5;
-            max-width: 800px;
-        }
-
-        .gdpr-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        #gdpr-accept,
-        #gdpr-decline {
-            padding: 8px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        #gdpr-accept {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        #gdpr-accept:hover {
-            background-color: var(--secondary-color);
-        }
-
-        #gdpr-decline {
-            background-color: var(--bg-primary);
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        #gdpr-decline:hover {
-            background-color: var(--bg-secondary);
-        }
-
-        @media (max-width: 768px) {
-            #gdpr-overlay {
-                padding: 15px;
-            }
-
-            #gdpr-content h4 {
-                font-size: 1.1rem;
-            }
-
-            #gdpr-content p {
-                font-size: 0.9rem;
-            }
-
-            #gdpr-accept,
-            #gdpr-decline {
-                width: 100%;
-                padding: 10px;
-            }
+        
+        .navbar-toggler[aria-expanded="true"] .burger-icon .bar:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
         }
     </style>
 </head>
@@ -383,20 +59,26 @@
                 Ознайомитися з тим які саме cookies ми використовуємо перейдіть до <a href="pp">політики
                     конфіденційності</a></p>
             <div class="gdpr-buttons">
-                <button id="gdpr-accept">Прийняти</button>
-                <button id="gdpr-decline">Відхилити</button>
+                <button id="gdpr-accept" class="btn btn-primary">Прийняти</button>
+                <button id="gdpr-decline" class="btn btn-outline-secondary">Відхилити</button>
             </div>
         </div>
     </div>
 
     <nav class="navbar navbar-expand-lg sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="/"><img src="{{ url_for('static', filename='fplogo.png') }}" width="30px">
-                FENTPIC</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon">
-                    <li class="fas fa-bars"></li>
-                </span>
+            <a class="navbar-brand" href="/">
+                <img src="{{ url_for('static', filename='fplogo.png') }}" width="32" height="32" alt="FENTPIC Logo"
+                    class="me-2">
+                FENTPIC
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <div class="burger-icon">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                </div>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
@@ -404,7 +86,7 @@
                     <li class="nav-item me-3">
                         <a class="nav-link profile-link" href="{{ url_for('profile') }}">
                             {% if g.user and g.user.avatar_url %}
-                            <img src="{{ url_for('static', filename=g.user.avatar_url) }}" class="profile-pic"
+                            <img src="{{ g.user.avatar_url }}" class="profile-pic"
                                 alt="Profile">
                             {% else %}
                             <img src="https://api.dicebear.com/7.x/bottts/svg?seed={{ session['user_id'] }}"
@@ -414,17 +96,21 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i>
-                            Вийти</a>
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="fas fa-sign-out-alt me-1"></i>
+                            Вийти
+                        </a>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}"><i class="fas fa-sign-in-alt"></i>
-                            Увійти/Зареєструватися</a>
+                        <a class="nav-link" href="{{ url_for('login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i>
+                            Увійти/Зареєструватися
+                        </a>
                     </li>
                     {% endif %}
                     <li class="nav-item">
-                        <button class="theme-toggle" id="themeToggle">
+                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
                             <i class="fas fa-sun"></i>
                         </button>
                     </li>
@@ -435,19 +121,60 @@
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
-    {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show">
-        {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    <div class="notification-container">
+        {% for category, message in messages %}
+        <div class="notification notification-{{ category }} animate-notification" data-auto-dismiss="3000">
+            <div class="notification-content">
+                <i class="notification-icon fas 
+                    {% if category == 'success' %}
+                        fa-check-circle
+                    {% elif category == 'danger' or category == 'error' %}
+                        fa-exclamation-circle
+                    {% elif category == 'warning' %}
+                        fa-exclamation-triangle
+                    {% else %}
+                        fa-info-circle
+                    {% endif %}
+                "></i>
+                <span class="notification-message">{{ message }}</span>
+            </div>
+            <button type="button" class="notification-close" onclick="closeNotification(this.parentElement);" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
     </div>
-    {% endfor %}
+
+    <script>
+        function closeNotification(element) {
+            element.classList.add('animate-notification-out');
+            setTimeout(() => {
+                element.remove();
+            }, 300); // Match this with CSS animation duration
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto dismiss notifications after 3 seconds
+            document.querySelectorAll('.notification').forEach(notification => {
+                const dismissTime = notification.getAttribute('data-auto-dismiss');
+                if (dismissTime) {
+                    setTimeout(() => {
+                        notification.remove();
+                    }, parseInt(dismissTime));
+                }
+            });
+        });
+    </script>
     {% endif %}
     {% endwith %}
 
     <div class="container py-4">
         {% block content %}{% endblock %}
     </div>
-    <button id="backToTopBtn"><i class="fas fa-chevron-up"></i></button>
+
+    <button id="backToTopBtn" aria-label="Back to top"><i class="fas fa-chevron-up"></i></button>
 
     <footer class="footer">
         <div class="container">
@@ -456,12 +183,13 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="footer-section">
                         <h5 class="d-flex align-items-center gap-2 mb-3">
-                            <img src="static/fplogo.png" width="30" alt="FENTPIC Logo">
+                            <img src="{{ url_for('static', filename='fplogo.png') }}" width="30" alt="FENTPIC Logo">
                             FENTPIC
                         </h5>
                         <p class="mb-3">Простий та зручний хостинг зображень для людей</p>
                         <div class="social-links">
-                            <a href="https://github.com/xxanqw/FENTPIC" class="me-3"><i class="fab fa-github fa-lg"></i></a>
+                            <a href="https://github.com/xxanqw/FENTPIC" aria-label="GitHub"><i
+                                    class="fab fa-github fa-lg"></i></a>
                         </div>
                     </div>
                 </div>
@@ -471,10 +199,10 @@
                     <div class="footer-section">
                         <h5 class="mb-3">Проєкти</h5>
                         <ul class="footer-links">
-                            <li><a href="https://fentcraft.xxanqw.pp.ua">
+                            <li><a href="https://fentcraft.fun">
                                     <i class="fas fa-cube me-2"></i>FENTCRAFT
                                 </a></li>
-                            <li><a href="https://fentcraft.xxanqw.pp.ua/map">
+                            <li><a href="https://fentcraft.fun/map">
                                     <i class="fas fa-map me-2"></i>FENTCRAFT Map
                                 </a></li>
                             <li><a href="https://github.com/xxanqw">
@@ -520,10 +248,10 @@
 
             const btn = document.getElementById('backToTopBtn');
             btn.style.opacity = '0';
-            btn.style.transition = 'opacity 0.3s';
+            btn.style.transition = 'opacity 0.3s, transform 0.3s';
 
             window.addEventListener('scroll', () => {
-                if (window.scrollY > window.innerHeight) {
+                if (window.scrollY > 300) {
                     btn.style.opacity = '1';
                     btn.style.pointerEvents = 'auto';
                 } else {
@@ -553,14 +281,6 @@
                 icon.className = theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
             }
 
-            if (document.documentElement.scrollHeight <= window.innerHeight) {
-                const footer = document.querySelector('footer');
-                footer.style.position = 'fixed';
-                footer.style.bottom = '0';
-                footer.style.left = '0';
-                footer.style.width = '100%';
-            }
-
             // GDPR script
             const gdprOverlay = document.getElementById('gdpr-overlay');
             const gdprAccept = document.getElementById('gdpr-accept');
@@ -570,7 +290,7 @@
             if (localStorage.getItem('gdpr_accepted') === 'true') {
                 gdprOverlay.style.display = 'none';
             } else {
-                gdprOverlay.style.display = 'flex';
+                gdprOverlay.style.display = 'block';
             }
 
             gdprAccept.addEventListener('click', () => {
@@ -580,8 +300,49 @@
             });
 
             gdprDecline.addEventListener('click', () => {
-
                 gdprOverlay.style.display = 'none';
+            });
+
+            // Add smooth scrolling to all links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Add animation to cards
+            const animateOnScroll = () => {
+                const cards = document.querySelectorAll('.card');
+                cards.forEach(card => {
+                    const cardTop = card.getBoundingClientRect().top;
+                    const triggerBottom = window.innerHeight * 0.8;
+                    if (cardTop < triggerBottom) {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }
+                });
+            };
+
+            // Initialize cards with opacity 0 and transform
+            document.querySelectorAll('.card').forEach(card => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            });
+
+            // Run animation on load and scroll
+            animateOnScroll();
+            window.addEventListener('scroll', animateOnScroll);
+
+            // Handle navbar toggler state
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            navbarToggler.addEventListener('click', () => {
             });
         });
     </script>
