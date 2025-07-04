@@ -46,6 +46,145 @@
         .navbar-toggler[aria-expanded="true"] .burger-icon .bar:nth-child(3) {
             transform: rotate(-45deg) translate(5px, -5px);
         }
+
+        /* GDPR Cookie Consent Popup */
+        .cookie-consent {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--surface-color);
+            border-top: 1px solid var(--border-color);
+            box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            padding: 20px;
+            animation: slideUp 0.3s ease-out;
+            display: none;
+        }
+
+        .cookie-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cookie-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .cookie-header i {
+            color: var(--accent-color);
+            font-size: 1.5rem;
+        }
+
+        .cookie-header h5 {
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .cookie-options {
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .cookie-category {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .cookie-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            color: var(--text-primary);
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .cookie-label input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent-color);
+        }
+
+        .cookie-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .cookie-links {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .cookie-links a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .cookie-links a:hover {
+            text-decoration: underline;
+        }
+
+        .cookie-settings-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+            transition: all 0.3s ease;
+        }
+
+        .cookie-settings-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cookie-consent {
+                padding: 15px;
+            }
+            
+            .cookie-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .cookie-actions {
+                flex-direction: column;
+            }
+            
+            .cookie-actions .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -61,6 +200,53 @@
             <div class="gdpr-buttons">
                 <button id="gdpr-accept" class="btn btn-primary">Прийняти</button>
                 <button id="gdpr-decline" class="btn btn-outline-secondary">Відхилити</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GDPR Cookie Consent Popup -->
+    <div id="cookieConsent" class="cookie-consent" style="display: none;">
+        <div class="cookie-content">
+            <div class="cookie-header">
+                <i class="fas fa-cookie-bite"></i>
+                <h5>Cookies & Privacy</h5>
+            </div>
+            <p>We use cookies to enhance your experience, analyze site traffic, and for marketing purposes. By continuing to use our site, you consent to our use of cookies.</p>
+            <div class="cookie-options">
+                <div class="cookie-category">
+                    <label class="cookie-label">
+                        <input type="checkbox" id="essentialCookies" checked disabled>
+                        <span class="checkmark"></span>
+                        Essential Cookies (Required)
+                    </label>
+                    <small>Necessary for website functionality and security</small>
+                </div>
+                <div class="cookie-category">
+                    <label class="cookie-label">
+                        <input type="checkbox" id="analyticsCookies">
+                        <span class="checkmark"></span>
+                        Analytics Cookies
+                    </label>
+                    <small>Help us understand how visitors interact with our website</small>
+                </div>
+                <div class="cookie-category">
+                    <label class="cookie-label">
+                        <input type="checkbox" id="marketingCookies">
+                        <span class="checkmark"></span>
+                        Marketing Cookies
+                    </label>
+                    <small>Used to deliver personalized advertisements</small>
+                </div>
+            </div>
+            <div class="cookie-actions">
+                <button id="customizeSettings" class="btn btn-outline-secondary btn-sm">Customize</button>
+                <button id="rejectAll" class="btn btn-outline-danger btn-sm">Reject All</button>
+                <button id="acceptSelected" class="btn btn-primary btn-sm">Accept Selected</button>
+                <button id="acceptAll" class="btn btn-success btn-sm">Accept All</button>
+            </div>
+            <div class="cookie-links">
+                <a href="{{ url_for('privacy') }}" target="_blank">Privacy Policy</a> | 
+                <a href="{{ url_for('terms') }}" target="_blank">Terms of Service</a>
             </div>
         </div>
     </div>
@@ -303,47 +489,110 @@
                 gdprOverlay.style.display = 'none';
             });
 
-            // Add smooth scrolling to all links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
+            // Cookie Consent Management
+            const cookieConsent = document.getElementById('cookieConsent');
+            const cookieSettingsBtn = document.getElementById('cookieSettingsBtn');
+            const acceptAllBtn = document.getElementById('acceptAll');
+            const acceptSelectedBtn = document.getElementById('acceptSelected');
+            const rejectAllBtn = document.getElementById('rejectAll');
+            const customizeBtn = document.getElementById('customizeSettings');
+
+            // Check if user has already made a choice
+            const cookiePreferences = localStorage.getItem('cookiePreferences');
+            
+            if (!cookiePreferences) {
+                // Show cookie consent popup after a short delay
+                setTimeout(() => {
+                    cookieConsent.style.display = 'block';
+                }, 1000);
+            } else {
+                // Show settings button if user has made a choice
+                cookieSettingsBtn.style.display = 'block';
+            }
+
+            // Cookie consent handlers
+            acceptAllBtn.addEventListener('click', () => {
+                saveCookiePreferences({
+                    essential: true,
+                    analytics: true,
+                    marketing: true
                 });
+                hideCookieConsent();
             });
 
-            // Add animation to cards
-            const animateOnScroll = () => {
-                const cards = document.querySelectorAll('.card');
-                cards.forEach(card => {
-                    const cardTop = card.getBoundingClientRect().top;
-                    const triggerBottom = window.innerHeight * 0.8;
-                    if (cardTop < triggerBottom) {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }
+            acceptSelectedBtn.addEventListener('click', () => {
+                saveCookiePreferences({
+                    essential: true,
+                    analytics: document.getElementById('analyticsCookies').checked,
+                    marketing: document.getElementById('marketingCookies').checked
                 });
-            };
-
-            // Initialize cards with opacity 0 and transform
-            document.querySelectorAll('.card').forEach(card => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                hideCookieConsent();
             });
 
-            // Run animation on load and scroll
-            animateOnScroll();
-            window.addEventListener('scroll', animateOnScroll);
-
-            // Handle navbar toggler state
-            const navbarToggler = document.querySelector('.navbar-toggler');
-            navbarToggler.addEventListener('click', () => {
+            rejectAllBtn.addEventListener('click', () => {
+                saveCookiePreferences({
+                    essential: true,
+                    analytics: false,
+                    marketing: false
+                });
+                hideCookieConsent();
             });
+
+            cookieSettingsBtn.addEventListener('click', () => {
+                cookieConsent.style.display = 'block';
+                loadCurrentPreferences();
+            });
+
+            function saveCookiePreferences(preferences) {
+                localStorage.setItem('cookiePreferences', JSON.stringify(preferences));
+                localStorage.setItem('cookieConsentDate', new Date().toISOString());
+                
+                // Apply preferences
+                if (preferences.analytics) {
+                    enableAnalytics();
+                } else {
+                    disableAnalytics();
+                }
+                
+                if (preferences.marketing) {
+                    enableMarketing();
+                } else {
+                    disableMarketing();
+                }
+            }
+
+            function loadCurrentPreferences() {
+                const preferences = JSON.parse(localStorage.getItem('cookiePreferences') || '{}');
+                document.getElementById('analyticsCookies').checked = preferences.analytics || false;
+                document.getElementById('marketingCookies').checked = preferences.marketing || false;
+            }
+
+            function hideCookieConsent() {
+                cookieConsent.style.display = 'none';
+                cookieSettingsBtn.style.display = 'block';
+            }
+
+            function enableAnalytics() {
+                // Initialize analytics tracking
+                console.log('Analytics enabled');
+                // Add your analytics code here (e.g., Google Analytics)
+            }
+
+            function disableAnalytics() {
+                // Disable analytics tracking
+                console.log('Analytics disabled');
+            }
+
+            function enableMarketing() {
+                // Initialize marketing tracking
+                console.log('Marketing enabled');
+                // Add your marketing code here
+            }
+
+            function disableMarketing() {
+                // Disable marketing tracking
+                console.log('Marketing disabled');
+            }
         });
     </script>
 </body>

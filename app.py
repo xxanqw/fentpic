@@ -9,6 +9,9 @@ import pytz
 import requests
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from flask_swagger_ui import get_swaggerui_blueprint
+import yaml
+import json
 
 load_dotenv()
 
@@ -687,12 +690,14 @@ def delete_account():
     flash('Акаунт успішно видалено', 'success')
     return redirect(url_for('home'))
 
-@app.route('/pp')
-def pp():
+@app.route('/privacy')
+def privacy():
+    """Privacy policy page"""
     return render_template('privacy.html')
 
-@app.route('/tos')
-def tos():
+@app.route('/terms')
+def terms():
+    """Terms of service page"""
     return render_template('terms.html')
 
 @app.route('/accept_cookies')
@@ -709,6 +714,387 @@ def sw():
     )
     response.headers['Content-Type'] = 'application/javascript'
     return response
+
+# Swagger UI configuration
+SWAGGER_URL = '/api/docs'
+API_URL = '/api/spec'
+
+swagger_ui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={
+        'app_name': "FENTPIC API",
+        'dom_id': '#swagger-ui',
+        'deepLinking': True,
+        'showExtensions': True,
+        'showCommonExtensions': True
+    }
+)
+
+app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
+
+# API Specification
+def get_api_spec():
+    """Generate OpenAPI specification"""
+    return {
+        "openapi": "3.0.0",
+        "info": {
+            "title": "FENTPIC API",
+            "description": "Image hosting platform API for uploading and managing images",
+            "version": "1.0.0",
+            "contact": {
+                "name": "FENTPIC Support",
+                "email": "support@fentpic.com"
+            },
+            "license": {
+                "name": "MIT",
+                "url": "https://opensource.org/licenses/MIT"
+            }
+        },
+        "servers": [
+            {
+                "url": "http://localhost:5000",
+                "description": "Development server"
+            }
+        ],
+        "components": {
+            "schemas": {
+                "Image": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "integer", "description": "Unique image identifier"},
+                        "filename": {"type": "string", "description": "Original filename"},
+                        "url": {"type": "string", "description": "Public URL to access the image"},
+                        "size": {"type": "integer", "description": "File size in bytes"},
+                        "uploaded_at": {"type": "string", "format": "date-time", "description": "Upload timestamp"},
+                        "is_public": {"type": "boolean", "description": "Whether image is publicly accessible"}
+                    }
+                },
+                "Error": {
+                    "type": "object",
+                    "properties": {
+                        "error": {"type": "string", "description": "Error message"},
+                        "code": {"type": "integer", "description": "Error code"}
+                    }
+                }
+            },
+            "securitySchemes": {
+                "sessionAuth": {
+                    "type": "apiKey",
+                    "in": "cookie",
+                    "name": "session"
+                }
+            }
+        },
+        "paths": {
+            "/api/upload": {
+                "post": {
+                    "summary": "Upload image files",
+                    "description": "Upload one or more image files. Supports JPG, PNG, GIF, and WEBP formats up to 20MB each.",
+                    "tags": ["Images"],
+                    "security": [{"sessionAuth": []}],
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "multipart/form-data": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "file": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string",
+                                                "format": "binary"
+                                            },
+                                            "description": "Image files to upload"
+                                        },
+                                        "is_public": {
+                                            "type": "boolean",
+                                            "default": True,
+                                            "description": "Whether images should be publicly accessible"
+                                        }
+                                    },
+                                    "required": ["file"]
+                                }
+                            }
+                        }
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Images uploaded successfully",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "success": {"type": "boolean"},
+                                            "images": {
+                                                "type": "array",
+                                                "items": {"$ref": "#/components/schemas/Image"}
+                                            },
+                                            "message": {"type": "string"}
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "400": {
+                            "description": "Bad request - invalid file format or size",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/Error"}
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized - login required",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/Error"}
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "/api/images": {
+                "get": {
+                    "summary": "Get user's images",
+                    "description": "Retrieve a list of images uploaded by the authenticated user",
+                    "tags": ["Images"],
+                    "security": [{"sessionAuth": []}],
+                    "parameters": [
+                        {
+                            "name": "page",
+                            "in": "query",
+                            "description": "Page number for pagination",
+                            "schema": {"type": "integer", "minimum": 1, "default": 1}
+                        },
+                        {
+                            "name": "limit",
+                            "in": "query",
+                            "description": "Number of images per page",
+                            "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 20}
+                        },
+                        {
+                            "name": "public_only",
+                            "in": "query",
+                            "description": "Filter to only public images",
+                            "schema": {"type": "boolean", "default": False}
+                        }
+                    ],
+                    "responses": {
+                        "200": {
+                            "description": "List of user's images",
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "type": "object",
+                                        "properties": {
+                                            "images": {
+                                                "type": "array",
+                                                "items": {"$ref": "#/components/schemas/Image"}
+                                            },
+                                            "pagination": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "page": {"type": "integer"},
+                                                    "limit": {"type": "integer"},
+                                                    "total": {"type": "integer"},
+                                                    "pages": {"type": "integer"}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "401": {
+                            "description": "Unauthorized - login required",
+                            "content": {
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/Error"}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+@app.route('/api/spec')
+def get_api_specification():
+    """Return OpenAPI specification"""
+    return json.dumps(get_api_spec(), indent=2), 200, {'Content-Type': 'application/json'}
+
+# API Routes
+
+@app.route('/api/upload', methods=['POST'])
+def api_upload():
+    """API endpoint for image upload"""
+    if 'user_id' not in session:
+        return json.dumps({"error": "Authentication required", "code": 401}), 401, {'Content-Type': 'application/json'}
+    
+    if 'file' not in request.files:
+        return json.dumps({"error": "No file provided", "code": 400}), 400, {'Content-Type': 'application/json'}
+    
+    files = request.files.getlist('file')
+    is_public = request.form.get('is_public', 'true').lower() == 'true'
+    
+    if not files or all(file.filename == '' for file in files):
+        return json.dumps({"error": "No files selected", "code": 400}), 400, {'Content-Type': 'application/json'}
+    
+    uploaded_images = []
+    errors = []
+    
+    for file in files:
+        if file.filename == '':
+            continue
+            
+        if not allowed_file(file.filename):
+            errors.append(f"Invalid file type for {file.filename}")
+            continue
+            
+        if not validate_file_size(file.stream):
+            errors.append(f"File {file.filename} exceeds size limit")
+            continue
+            
+        # Validate image using magic numbers
+        file_extension = validate_image(file.stream)
+        if not file_extension:
+            errors.append(f"Invalid image format for {file.filename}")
+            continue
+            
+        try:
+            # Generate unique filename
+            import uuid
+            file_id = str(uuid.uuid4())
+            filename = secure_filename(file.filename)
+            name, ext = os.path.splitext(filename)
+            unique_filename = f"{file_id}_{name}{ext}"
+            
+            # Save file
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
+            file.save(file_path)
+            
+            # Get file size
+            file_size = os.path.getsize(file_path)
+            
+            # Save to database
+            db = get_db()
+            cursor = db.execute('''
+                INSERT INTO images (user_id, filename, original_filename, file_path, file_size, uploaded_at, is_public)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', [
+                session['user_id'],
+                unique_filename,
+                filename,
+                file_path,
+                file_size,
+                datetime.now(timezone.utc),
+                is_public
+            ])
+            
+            image_id = cursor.lastrowid
+            db.commit();
+            
+            uploaded_images.append({
+                "id": image_id,
+                "filename": filename,
+                "url": f"/uploads/{unique_filename}",
+                "size": file_size,
+                "uploaded_at": datetime.now(timezone.utc).isoformat(),
+                "is_public": is_public
+            })
+            
+        except Exception as e:
+            errors.append(f"Error uploading {file.filename}: {str(e)}")
+    
+    if uploaded_images:
+        response_data = {
+            "success": True,
+            "images": uploaded_images,
+            "message": f"Successfully uploaded {len(uploaded_images)} image(s)"
+        }
+        if errors:
+            response_data["warnings"] = errors
+        return json.dumps(response_data), 200, {'Content-Type': 'application/json'}
+    else:
+        return json.dumps({"error": "No images uploaded", "details": errors, "code": 400}), 400, {'Content-Type': 'application/json'}
+
+@app.route('/api/images', methods=['GET'])
+def api_get_images():
+    """API endpoint to get user's images"""
+    if 'user_id' not in session:
+        return json.dumps({"error": "Authentication required", "code": 401}), 401, {'Content-Type': 'application/json'}
+    
+    # Parse query parameters
+    page = int(request.args.get('page', 1))
+    limit = min(int(request.args.get('limit', 20)), 100)  # Max 100 per page
+    public_only = request.args.get('public_only', 'false').lower() == 'true'
+    
+    # Calculate offset
+    offset = (page - 1) * limit
+    
+    db = get_db()
+    
+    # Build query based on filters
+    if public_only:
+        query = '''
+            SELECT id, filename, original_filename, file_size, uploaded_at, is_public
+            FROM images 
+            WHERE user_id = ? AND is_public = 1
+            ORDER BY uploaded_at DESC
+            LIMIT ? OFFSET ?
+        '''
+        count_query = 'SELECT COUNT(*) FROM images WHERE user_id = ? AND is_public = 1'
+        query_params = [session['user_id'], limit, offset]
+        count_params = [session['user_id']]
+    else:
+        query = '''
+            SELECT id, filename, original_filename, file_size, uploaded_at, is_public
+            FROM images 
+            WHERE user_id = ?
+            ORDER BY uploaded_at DESC
+            LIMIT ? OFFSET ?
+        '''
+        count_query = 'SELECT COUNT(*) FROM images WHERE user_id = ?'
+        query_params = [session['user_id'], limit, offset]
+        count_params = [session['user_id']]
+    
+    # Get images
+    images = db.execute(query, query_params).fetchall()
+    
+    # Get total count
+    total_count = db.execute(count_query, count_params).fetchone()[0]
+    
+    # Calculate total pages
+    total_pages = (total_count + limit - 1) // limit
+    
+    # Format response
+    formatted_images = []
+    for image in images:
+        formatted_images.append({
+            "id": image['id'],
+            "filename": image['original_filename'],
+            "url": f"/uploads/{image['filename']}",
+            "size": image['file_size'],
+            "uploaded_at": image['uploaded_at'].isoformat() if hasattr(image['uploaded_at'], 'isoformat') else image['uploaded_at'],
+            "is_public": bool(image['is_public'])
+        })
+    
+    response_data = {
+        "images": formatted_images,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total_count,
+            "pages": total_pages
+        }
+    }
+    
+    return json.dumps(response_data), 200, {'Content-Type': 'application/json'}
 
 if __name__ == '__main__':
     from waitress import serve
