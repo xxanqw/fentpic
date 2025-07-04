@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Reference &mdash; FENTPIC 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="UI Components" href="components.html" />
+    <link rel="prev" title="Installation Guide" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            FENTPIC
+          </a>
+              <div class="version">
+                1.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#base-url">Base URL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#endpoints">Endpoints</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#upload-images">Upload Images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-images">Get Images</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#response-formats">Response Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#success-response">Success Response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-response">Error Response</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#rate-limiting">Rate Limiting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-models">Data Models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#image-object">Image Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pagination-object">Pagination Object</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#error-codes">Error Codes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage-examples">Usage Examples</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#curl-examples">cURL Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#python-examples">Python Examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#javascript-examples">JavaScript Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#swagger-documentation">Swagger Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">UI Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FENTPIC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Reference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/api.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Permalink to this heading"></a></h1>
+<p>FENTPIC provides a RESTful API for programmatic access to image hosting functionality.</p>
+<section id="base-url">
+<h2>Base URL<a class="headerlink" href="#base-url" title="Permalink to this heading"></a></h2>
+<p>All API endpoints are relative to: <code class="docutils literal notranslate"><span class="pre">http://localhost:5000/api</span></code></p>
+</section>
+<section id="authentication">
+<h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this heading"></a></h2>
+<p>The API uses session-based authentication. You must be logged in to access most endpoints.</p>
+<p><strong>Authentication Methods:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Session Cookies</strong> - After logging in through the web interface</p></li>
+<li><p><strong>OAuth Tokens</strong> - Google OAuth integration</p></li>
+</ol>
+<p><strong>Session Management:</strong></p>
+<ul class="simple">
+<li><p>Sessions expire after 31 days of inactivity</p></li>
+<li><p>Secure cookies are used in production</p></li>
+<li><p>CSRF protection is implemented</p></li>
+</ul>
+</section>
+<section id="endpoints">
+<h2>Endpoints<a class="headerlink" href="#endpoints" title="Permalink to this heading"></a></h2>
+<section id="upload-images">
+<h3>Upload Images<a class="headerlink" href="#upload-images" title="Permalink to this heading"></a></h3>
+</section>
+<section id="get-images">
+<h3>Get Images<a class="headerlink" href="#get-images" title="Permalink to this heading"></a></h3>
+</section>
+</section>
+<section id="response-formats">
+<h2>Response Formats<a class="headerlink" href="#response-formats" title="Permalink to this heading"></a></h2>
+<section id="success-response">
+<h3>Success Response<a class="headerlink" href="#success-response" title="Permalink to this heading"></a></h3>
+<p>All successful API responses include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">success</span></code>: Boolean indicating success (for upload endpoint)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: Response data (varies by endpoint)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">message</span></code>: Human-readable success message (optional)</p></li>
+</ul>
+</section>
+<section id="error-response">
+<h3>Error Response<a class="headerlink" href="#error-response" title="Permalink to this heading"></a></h3>
+<p>All error responses include:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">error</span></code>: Human-readable error message</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">code</span></code>: HTTP status code</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">details</span></code>: Additional error details (optional)</p></li>
+</ul>
+</section>
+</section>
+<section id="rate-limiting">
+<h2>Rate Limiting<a class="headerlink" href="#rate-limiting" title="Permalink to this heading"></a></h2>
+<p><strong>Current Limits:</strong></p>
+<ul class="simple">
+<li><p>No rate limiting implemented</p></li>
+<li><p>File size limit: 20MB per file</p></li>
+<li><p>Session timeout: 31 days</p></li>
+</ul>
+<p><strong>Planned Limits:</strong></p>
+<ul class="simple">
+<li><p>100 uploads per hour per user</p></li>
+<li><p>1000 API requests per hour per user</p></li>
+</ul>
+</section>
+<section id="data-models">
+<h2>Data Models<a class="headerlink" href="#data-models" title="Permalink to this heading"></a></h2>
+<section id="image-object">
+<h3>Image Object<a class="headerlink" href="#image-object" title="Permalink to this heading"></a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">123</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;filename&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;original-filename.jpg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/uploads/unique-filename.jpg&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1048576</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;uploaded_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-07-04T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;is_public&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Fields:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">id<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Unique integer identifier</p>
+</dd>
+<dt class="field-even">filename<span class="colon">:</span></dt>
+<dd class="field-even"><p>Original filename as uploaded</p>
+</dd>
+<dt class="field-odd">url<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Relative URL to access the image</p>
+</dd>
+<dt class="field-even">size<span class="colon">:</span></dt>
+<dd class="field-even"><p>File size in bytes</p>
+</dd>
+<dt class="field-odd">uploaded_at<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ISO 8601 timestamp in UTC</p>
+</dd>
+<dt class="field-even">is_public<span class="colon">:</span></dt>
+<dd class="field-even"><p>Boolean indicating public accessibility</p>
+</dd>
+</dl>
+</section>
+<section id="pagination-object">
+<h3>Pagination Object<a class="headerlink" href="#pagination-object" title="Permalink to this heading"></a></h3>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;page&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">45</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;pages&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Fields:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">page<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Current page number</p>
+</dd>
+<dt class="field-even">limit<span class="colon">:</span></dt>
+<dd class="field-even"><p>Items per page</p>
+</dd>
+<dt class="field-odd">total<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Total number of items</p>
+</dd>
+<dt class="field-even">pages<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total number of pages</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="error-codes">
+<h2>Error Codes<a class="headerlink" href="#error-codes" title="Permalink to this heading"></a></h2>
+<dl class="field-list simple">
+<dt class="field-odd">400<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Bad Request - Invalid input data</p>
+</dd>
+<dt class="field-even">401<span class="colon">:</span></dt>
+<dd class="field-even"><p>Unauthorized - Authentication required</p>
+</dd>
+<dt class="field-odd">403<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Forbidden - Access denied</p>
+</dd>
+<dt class="field-even">404<span class="colon">:</span></dt>
+<dd class="field-even"><p>Not Found - Resource not found</p>
+</dd>
+<dt class="field-odd">413<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Payload Too Large - File too large</p>
+</dd>
+<dt class="field-even">415<span class="colon">:</span></dt>
+<dd class="field-even"><p>Unsupported Media Type - Invalid file format</p>
+</dd>
+<dt class="field-odd">429<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Too Many Requests - Rate limit exceeded</p>
+</dd>
+<dt class="field-even">500<span class="colon">:</span></dt>
+<dd class="field-even"><p>Internal Server Error - Server error</p>
+</dd>
+</dl>
+</section>
+<section id="usage-examples">
+<h2>Usage Examples<a class="headerlink" href="#usage-examples" title="Permalink to this heading"></a></h2>
+<section id="curl-examples">
+<h3>cURL Examples<a class="headerlink" href="#curl-examples" title="Permalink to this heading"></a></h3>
+<p><strong>Upload an image:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:5000/api/upload<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Cookie: session=your-session-cookie&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;file=@/path/to/image.jpg&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-F<span class="w"> </span><span class="s2">&quot;is_public=true&quot;</span>
+</pre></div>
+</div>
+<p><strong>Get images:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span>-X<span class="w"> </span>GET<span class="w"> </span><span class="s2">&quot;http://localhost:5000/api/images?page=1&amp;limit=10&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>-H<span class="w"> </span><span class="s2">&quot;Cookie: session=your-session-cookie&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="python-examples">
+<h3>Python Examples<a class="headerlink" href="#python-examples" title="Permalink to this heading"></a></h3>
+<p><strong>Using requests library:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+
+<span class="c1"># Upload image</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;image.jpg&#39;</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span>
+        <span class="s1">&#39;http://localhost:5000/api/upload&#39;</span><span class="p">,</span>
+        <span class="n">files</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;file&#39;</span><span class="p">:</span> <span class="n">f</span><span class="p">},</span>
+        <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;is_public&#39;</span><span class="p">:</span> <span class="s1">&#39;true&#39;</span><span class="p">},</span>
+        <span class="n">cookies</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;session&#39;</span><span class="p">:</span> <span class="s1">&#39;your-session-cookie&#39;</span><span class="p">}</span>
+    <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+
+<span class="c1"># Get images</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+    <span class="s1">&#39;http://localhost:5000/api/images&#39;</span><span class="p">,</span>
+    <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;page&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;limit&#39;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+    <span class="n">cookies</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;session&#39;</span><span class="p">:</span> <span class="s1">&#39;your-session-cookie&#39;</span><span class="p">}</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="javascript-examples">
+<h3>JavaScript Examples<a class="headerlink" href="#javascript-examples" title="Permalink to this heading"></a></h3>
+<p><strong>Using fetch API:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Upload image</span>
+<span class="kd">const</span><span class="w"> </span><span class="nx">formData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">FormData</span><span class="p">();</span>
+<span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;file&#39;</span><span class="p">,</span><span class="w"> </span><span class="nx">fileInput</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="mf">0</span><span class="p">]);</span>
+<span class="nx">formData</span><span class="p">.</span><span class="nx">append</span><span class="p">(</span><span class="s1">&#39;is_public&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;true&#39;</span><span class="p">);</span>
+
+<span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/upload&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">method</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;POST&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="nx">formData</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;same-origin&#39;</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+
+<span class="c1">// Get images</span>
+<span class="nx">fetch</span><span class="p">(</span><span class="s1">&#39;/api/images?page=1&amp;limit=20&#39;</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">credentials</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;same-origin&#39;</span>
+<span class="p">})</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">response</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">response</span><span class="p">.</span><span class="nx">json</span><span class="p">())</span>
+<span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">));</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="swagger-documentation">
+<h2>Swagger Documentation<a class="headerlink" href="#swagger-documentation" title="Permalink to this heading"></a></h2>
+<p>Interactive API documentation is available at:</p>
+<ul class="simple">
+<li><p><strong>Swagger UI</strong>: <a class="reference external" href="http://localhost:5000/api/docs">http://localhost:5000/api/docs</a></p></li>
+<li><p><strong>OpenAPI Spec</strong>: <a class="reference external" href="http://localhost:5000/api/spec">http://localhost:5000/api/spec</a></p></li>
+</ul>
+<p>The Swagger interface allows you to:</p>
+<ul class="simple">
+<li><p>Explore all available endpoints</p></li>
+<li><p>Test API calls directly in the browser</p></li>
+<li><p>View request/response schemas</p></li>
+<li><p>Download the OpenAPI specification</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="components.html" class="btn btn-neutral float-right" title="UI Components" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, xxanqw.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

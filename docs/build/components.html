@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UI Components &mdash; FENTPIC 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Guide" href="development.html" />
+    <link rel="prev" title="API Reference" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            FENTPIC
+          </a>
+              <div class="version">
+                1.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">UI Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#storybook-setup">Storybook Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#component-library">Component Library</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#uploadcard-component">UploadCard Component</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#imagecard-component">ImageCard Component</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#design-system">Design System</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#colors">Colors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#typography">Typography</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spacing">Spacing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#border-radius">Border Radius</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#shadows">Shadows</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#animations">Animations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#component-guidelines">Component Guidelines</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accessibility">Accessibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#responsive-design">Responsive Design</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance">Performance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing">Testing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#customization">Customization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#theme-variables">Theme Variables</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#custom-styling">Custom Styling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="development.html">Development Guide</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FENTPIC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">UI Components</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/components.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="ui-components">
+<h1>UI Components<a class="headerlink" href="#ui-components" title="Permalink to this heading"></a></h1>
+<p>FENTPIC includes a comprehensive component library documented with Storybook. This section describes the main UI components used throughout the application.</p>
+<section id="storybook-setup">
+<h2>Storybook Setup<a class="headerlink" href="#storybook-setup" title="Permalink to this heading"></a></h2>
+<p>To view and interact with components:</p>
+<ol class="arabic">
+<li><p><strong>Install Node.js dependencies</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Start Storybook</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">storybook</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Access Storybook</strong>: Open <a class="reference external" href="http://localhost:6006">http://localhost:6006</a></p></li>
+</ol>
+</section>
+<section id="component-library">
+<h2>Component Library<a class="headerlink" href="#component-library" title="Permalink to this heading"></a></h2>
+<section id="uploadcard-component">
+<h3>UploadCard Component<a class="headerlink" href="#uploadcard-component" title="Permalink to this heading"></a></h3>
+<p>A drag-and-drop upload card component for image uploads with preview functionality.</p>
+<p><strong>Features:</strong></p>
+<ul class="simple">
+<li><p>Drag and drop file upload</p></li>
+<li><p>File format validation</p></li>
+<li><p>Size limit enforcement</p></li>
+<li><p>Preview functionality</p></li>
+<li><p>Multiple theme support</p></li>
+<li><p>Responsive design</p></li>
+</ul>
+<p><strong>Properties:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">theme<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Visual theme (‘light’ or ‘dark’)</p>
+</dd>
+<dt class="field-even">maxFileSize<span class="colon">:</span></dt>
+<dd class="field-even"><p>Maximum file size in MB (default: 20)</p>
+</dd>
+<dt class="field-odd">acceptedFormats<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Array of accepted file formats</p>
+</dd>
+<dt class="field-even">showPreview<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether to show file preview (default: true)</p>
+</dd>
+<dt class="field-odd">disabled<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Disable upload functionality (default: false)</p>
+</dd>
+</dl>
+<p><strong>Events:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">onFileSelect<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Triggered when files are selected</p>
+</dd>
+<dt class="field-even">onUpload<span class="colon">:</span></dt>
+<dd class="field-even"><p>Triggered when upload starts</p>
+</dd>
+</dl>
+<p><strong>Usage Example:</strong></p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="p">&lt;</span><span class="nt">div</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;upload-card&quot;</span><span class="p">&gt;</span>
+  <span class="cm">&lt;!-- Component renders here --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">div</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+<p><strong>Variants:</strong></p>
+<ul class="simple">
+<li><p><strong>Default</strong>: Dark theme with full functionality</p></li>
+<li><p><strong>Light Theme</strong>: Light color scheme</p></li>
+<li><p><strong>Without Preview</strong>: Simplified upload without preview</p></li>
+<li><p><strong>Disabled</strong>: Non-interactive state</p></li>
+</ul>
+</section>
+<section id="imagecard-component">
+<h3>ImageCard Component<a class="headerlink" href="#imagecard-component" title="Permalink to this heading"></a></h3>
+<p>A card component for displaying uploaded images with metadata and action buttons.</p>
+<p><strong>Features:</strong></p>
+<ul class="simple">
+<li><p>Image thumbnail display</p></li>
+<li><p>Metadata information (size, date, etc.)</p></li>
+<li><p>Privacy indicators (public/private)</p></li>
+<li><p>Action buttons (view, copy, delete)</p></li>
+<li><p>Multiple size variants</p></li>
+<li><p>Hover effects and animations</p></li>
+</ul>
+<p><strong>Properties:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">image<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Image object with metadata</p>
+</dd>
+<dt class="field-even">theme<span class="colon">:</span></dt>
+<dd class="field-even"><p>Visual theme (‘light’ or ‘dark’)</p>
+</dd>
+<dt class="field-odd">showActions<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Whether to show action buttons (default: true)</p>
+</dd>
+<dt class="field-even">showMetadata<span class="colon">:</span></dt>
+<dd class="field-even"><p>Whether to show image metadata (default: true)</p>
+</dd>
+<dt class="field-odd">size<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Card size variant (‘small’, ‘medium’, ‘large’)</p>
+</dd>
+</dl>
+<p><strong>Events:</strong></p>
+<dl class="field-list simple">
+<dt class="field-odd">onCopy<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Triggered when copy button is clicked</p>
+</dd>
+<dt class="field-even">onDelete<span class="colon">:</span></dt>
+<dd class="field-even"><p>Triggered when delete button is clicked</p>
+</dd>
+<dt class="field-odd">onView<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Triggered when view button is clicked</p>
+</dd>
+</dl>
+<p><strong>Image Object Structure:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="mf">1</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">filename</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;example.jpg&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">url</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;/uploads/example.jpg&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">size</span><span class="o">:</span><span class="w"> </span><span class="mf">1048576</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">uploaded_at</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;2025-07-04T12:00:00Z&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">is_public</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Variants:</strong></p>
+<ul class="simple">
+<li><p><strong>Default</strong>: Medium card with full functionality</p></li>
+<li><p><strong>Light Theme</strong>: Light color scheme</p></li>
+<li><p><strong>Private Image</strong>: Shows private indicator</p></li>
+<li><p><strong>Small Size</strong>: Compact card layout</p></li>
+<li><p><strong>Large Size</strong>: Expanded card layout</p></li>
+<li><p><strong>Without Actions</strong>: Display only, no interaction</p></li>
+<li><p><strong>Without Metadata</strong>: Image and title only</p></li>
+</ul>
+</section>
+</section>
+<section id="design-system">
+<h2>Design System<a class="headerlink" href="#design-system" title="Permalink to this heading"></a></h2>
+<section id="colors">
+<h3>Colors<a class="headerlink" href="#colors" title="Permalink to this heading"></a></h3>
+<p><strong>Dark Theme:</strong></p>
+<ul class="simple">
+<li><p>Primary Background: <code class="docutils literal notranslate"><span class="pre">#0f0f0f</span></code></p></li>
+<li><p>Secondary Background: <code class="docutils literal notranslate"><span class="pre">#1a1a1a</span></code></p></li>
+<li><p>Surface Color: <code class="docutils literal notranslate"><span class="pre">#262626</span></code></p></li>
+<li><p>Text Primary: <code class="docutils literal notranslate"><span class="pre">#ffffff</span></code></p></li>
+<li><p>Text Secondary: <code class="docutils literal notranslate"><span class="pre">#b3b3b3</span></code></p></li>
+<li><p>Border Color: <code class="docutils literal notranslate"><span class="pre">#404040</span></code></p></li>
+<li><p>Accent Color: <code class="docutils literal notranslate"><span class="pre">#3b82f6</span></code></p></li>
+</ul>
+<p><strong>Light Theme:</strong></p>
+<ul class="simple">
+<li><p>Primary Background: <code class="docutils literal notranslate"><span class="pre">#ffffff</span></code></p></li>
+<li><p>Secondary Background: <code class="docutils literal notranslate"><span class="pre">#f8f9fa</span></code></p></li>
+<li><p>Surface Color: <code class="docutils literal notranslate"><span class="pre">#ffffff</span></code></p></li>
+<li><p>Text Primary: <code class="docutils literal notranslate"><span class="pre">#333333</span></code></p></li>
+<li><p>Text Secondary: <code class="docutils literal notranslate"><span class="pre">#666666</span></code></p></li>
+<li><p>Border Color: <code class="docutils literal notranslate"><span class="pre">#e0e0e0</span></code></p></li>
+<li><p>Accent Color: <code class="docutils literal notranslate"><span class="pre">#3b82f6</span></code></p></li>
+</ul>
+</section>
+<section id="typography">
+<h3>Typography<a class="headerlink" href="#typography" title="Permalink to this heading"></a></h3>
+<p><strong>Font Family:</strong> Inter (Google Fonts)</p>
+<p><strong>Font Weights:</strong></p>
+<ul class="simple">
+<li><p>Light: 300</p></li>
+<li><p>Regular: 400</p></li>
+<li><p>Medium: 500</p></li>
+<li><p>Semibold: 600</p></li>
+<li><p>Bold: 700</p></li>
+</ul>
+<p><strong>Text Scales:</strong></p>
+<ul class="simple">
+<li><p>Heading 1: 2.5rem (40px)</p></li>
+<li><p>Heading 2: 2rem (32px)</p></li>
+<li><p>Heading 3: 1.75rem (28px)</p></li>
+<li><p>Heading 4: 1.5rem (24px)</p></li>
+<li><p>Body: 1rem (16px)</p></li>
+<li><p>Small: 0.875rem (14px)</p></li>
+<li><p>Caption: 0.75rem (12px)</p></li>
+</ul>
+</section>
+<section id="spacing">
+<h3>Spacing<a class="headerlink" href="#spacing" title="Permalink to this heading"></a></h3>
+<p><strong>Base Unit:</strong> 4px</p>
+<p><strong>Scale:</strong></p>
+<ul class="simple">
+<li><p>xs: 4px</p></li>
+<li><p>sm: 8px</p></li>
+<li><p>md: 16px</p></li>
+<li><p>lg: 24px</p></li>
+<li><p>xl: 32px</p></li>
+<li><p>2xl: 48px</p></li>
+<li><p>3xl: 64px</p></li>
+</ul>
+</section>
+<section id="border-radius">
+<h3>Border Radius<a class="headerlink" href="#border-radius" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Small: 4px</p></li>
+<li><p>Medium: 8px</p></li>
+<li><p>Large: 12px</p></li>
+<li><p>XLarge: 16px</p></li>
+<li><p>Full: 50%</p></li>
+</ul>
+</section>
+<section id="shadows">
+<h3>Shadows<a class="headerlink" href="#shadows" title="Permalink to this heading"></a></h3>
+<p><strong>Elevation Levels:</strong></p>
+<ul class="simple">
+<li><p>Level 1: <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">2px</span> <span class="pre">8px</span> <span class="pre">rgba(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0.1)</span></code></p></li>
+<li><p>Level 2: <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">4px</span> <span class="pre">12px</span> <span class="pre">rgba(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0.15)</span></code></p></li>
+<li><p>Level 3: <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">8px</span> <span class="pre">25px</span> <span class="pre">rgba(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0.15)</span></code></p></li>
+<li><p>Level 4: <code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">16px</span> <span class="pre">40px</span> <span class="pre">rgba(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0.2)</span></code></p></li>
+</ul>
+</section>
+<section id="animations">
+<h3>Animations<a class="headerlink" href="#animations" title="Permalink to this heading"></a></h3>
+<p><strong>Transitions:</strong></p>
+<ul class="simple">
+<li><p>Fast: 0.15s ease</p></li>
+<li><p>Normal: 0.3s ease</p></li>
+<li><p>Slow: 0.5s ease</p></li>
+</ul>
+<p><strong>Common Animations:</strong></p>
+<ul class="simple">
+<li><p>Hover lift: <code class="docutils literal notranslate"><span class="pre">transform:</span> <span class="pre">translateY(-2px)</span></code></p></li>
+<li><p>Button press: <code class="docutils literal notranslate"><span class="pre">transform:</span> <span class="pre">scale(0.98)</span></code></p></li>
+<li><p>Fade in: <code class="docutils literal notranslate"><span class="pre">opacity:</span> <span class="pre">0</span> <span class="pre">→</span> <span class="pre">1</span></code></p></li>
+<li><p>Slide up: <code class="docutils literal notranslate"><span class="pre">transform:</span> <span class="pre">translateY(100%)</span> <span class="pre">→</span> <span class="pre">0</span></code></p></li>
+</ul>
+</section>
+</section>
+<section id="component-guidelines">
+<h2>Component Guidelines<a class="headerlink" href="#component-guidelines" title="Permalink to this heading"></a></h2>
+<section id="accessibility">
+<h3>Accessibility<a class="headerlink" href="#accessibility" title="Permalink to this heading"></a></h3>
+<p>All components follow WCAG 2.1 AA guidelines:</p>
+<ul class="simple">
+<li><p><strong>Keyboard Navigation</strong>: Tab order and focus management</p></li>
+<li><p><strong>Screen Readers</strong>: ARIA labels and semantic HTML</p></li>
+<li><p><strong>Color Contrast</strong>: Minimum 4.5:1 ratio</p></li>
+<li><p><strong>Focus Indicators</strong>: Visible focus states</p></li>
+<li><p><strong>Alternative Text</strong>: Images have descriptive alt text</p></li>
+</ul>
+</section>
+<section id="responsive-design">
+<h3>Responsive Design<a class="headerlink" href="#responsive-design" title="Permalink to this heading"></a></h3>
+<p>Components are designed mobile-first:</p>
+<ul class="simple">
+<li><p><strong>Breakpoints</strong>:</p>
+<ul>
+<li><p>Mobile: &lt; 768px</p></li>
+<li><p>Tablet: 768px - 1024px</p></li>
+<li><p>Desktop: &gt; 1024px</p></li>
+</ul>
+</li>
+<li><p><strong>Flexible Layouts</strong>: CSS Grid and Flexbox</p></li>
+<li><p><strong>Scalable Typography</strong>: Relative units (rem, em)</p></li>
+<li><p><strong>Touch Targets</strong>: Minimum 44px for interactive elements</p></li>
+</ul>
+</section>
+<section id="performance">
+<h3>Performance<a class="headerlink" href="#performance" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Lazy Loading</strong>: Images load on demand</p></li>
+<li><p><strong>CSS Animations</strong>: Hardware-accelerated transforms</p></li>
+<li><p><strong>Bundle Size</strong>: Minimal JavaScript footprint</p></li>
+<li><p><strong>Cache Strategy</strong>: Aggressive caching for static assets</p></li>
+</ul>
+</section>
+<section id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h3>
+<p>Components are tested for:</p>
+<ul class="simple">
+<li><p><strong>Visual Regression</strong>: Automated screenshot comparison</p></li>
+<li><p><strong>Interaction Testing</strong>: User event simulation</p></li>
+<li><p><strong>Accessibility Testing</strong>: Automated a11y checks</p></li>
+<li><p><strong>Cross-browser</strong>: Chrome, Firefox, Safari, Edge</p></li>
+</ul>
+</section>
+</section>
+<section id="customization">
+<h2>Customization<a class="headerlink" href="#customization" title="Permalink to this heading"></a></h2>
+<section id="theme-variables">
+<h3>Theme Variables<a class="headerlink" href="#theme-variables" title="Permalink to this heading"></a></h3>
+<p>Components use CSS custom properties for theming:</p>
+<div class="highlight-css notranslate"><div class="highlight"><pre><span></span><span class="p">:</span><span class="nd">root</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nv">--bg-primary</span><span class="p">:</span><span class="w"> </span><span class="mh">#0f0f0f</span><span class="p">;</span>
+<span class="w">  </span><span class="nv">--bg-secondary</span><span class="p">:</span><span class="w"> </span><span class="mh">#1a1a1a</span><span class="p">;</span>
+<span class="w">  </span><span class="nv">--text-primary</span><span class="p">:</span><span class="w"> </span><span class="mh">#ffffff</span><span class="p">;</span>
+<span class="w">  </span><span class="nv">--accent-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#3b82f6</span><span class="p">;</span>
+<span class="w">  </span><span class="c">/* ... more variables */</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="custom-styling">
+<h3>Custom Styling<a class="headerlink" href="#custom-styling" title="Permalink to this heading"></a></h3>
+<p>Override component styles:</p>
+<div class="highlight-css notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">upload-card</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nv">--border-radius</span><span class="p">:</span><span class="w"> </span><span class="mi">20</span><span class="kt">px</span><span class="p">;</span>
+<span class="w">  </span><span class="nv">--accent-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#10b981</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h2>
+<p>To add new components:</p>
+<ol class="arabic simple">
+<li><p>Create component in <code class="docutils literal notranslate"><span class="pre">/static/components/</span></code></p></li>
+<li><p>Add Storybook story in <code class="docutils literal notranslate"><span class="pre">/stories/</span></code></p></li>
+<li><p>Document in this guide</p></li>
+<li><p>Add tests</p></li>
+<li><p>Submit pull request</p></li>
+</ol>
+<p><strong>Story Format:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Components/ComponentName&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">argTypes</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Component properties</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">render</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">createComponent</span><span class="p">(</span><span class="nx">args</span><span class="p">),</span>
+<span class="w">  </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Default values</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p><strong>Documentation Requirements:</strong></p>
+<ul class="simple">
+<li><p>Component description</p></li>
+<li><p>Property definitions</p></li>
+<li><p>Event descriptions</p></li>
+<li><p>Usage examples</p></li>
+<li><p>Accessibility notes</p></li>
+<li><p>Browser support</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="development.html" class="btn btn-neutral float-right" title="Development Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, xxanqw.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

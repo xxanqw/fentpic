@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Guide &mdash; FENTPIC 1.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="_static/jquery.js?v=5d32c60e"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js?v=af2ce170"></script>
+        <script src="_static/doctools.js?v=888ff710"></script>
+        <script src="_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="UI Components" href="components.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #2980B9" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            FENTPIC
+          </a>
+              <div class="version">
+                1.0.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="components.html">UI Components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#project-structure">Project Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-environment-setup">Development Environment Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#initial-setup">Initial Setup</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#starting-development-server">Starting Development Server</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#code-style-and-standards">Code Style and Standards</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#running-tests">Running Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#test-structure">Test Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#database-management">Database Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#schema-changes">Schema Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backup-and-recovery">Backup and Recovery</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#api-development">API Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-new-endpoints">Adding New Endpoints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#frontend-development">Frontend Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#component-development">Component Development</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#styling-guidelines">Styling Guidelines</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#security-considerations">Security Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#authentication">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#file-upload-security">File Upload Security</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-protection">Data Protection</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment">Deployment</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-deployment">Development Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#production-deployment">Production Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#docker-deployment">Docker Deployment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing">Contributing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#git-workflow">Git Workflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#code-review-process">Code Review Process</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pull-request-template">Pull Request Template</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#release-process">Release Process</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#version-management">Version Management</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#documentation-updates">Documentation Updates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#monitoring-and-maintenance">Monitoring and Maintenance</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#error-tracking">Error Tracking</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-monitoring">Performance Monitoring</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#security-updates">Security Updates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#backup-strategy">Backup Strategy</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu"  style="background: #2980B9" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">FENTPIC</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development Guide</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/development.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-guide">
+<h1>Development Guide<a class="headerlink" href="#development-guide" title="Permalink to this heading"></a></h1>
+<p>This guide covers the development workflow, project structure, and contribution guidelines for FENTPIC.</p>
+<section id="project-structure">
+<h2>Project Structure<a class="headerlink" href="#project-structure" title="Permalink to this heading"></a></h2>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>fentpic/
+├── app.py                 # Main Flask application
+├── schema.sql            # Database schema
+├── requirements.txt      # Python dependencies
+├── pyproject.toml        # Project configuration
+├── package.json          # Node.js dependencies
+├── LICENSE               # MIT license
+├── README.md             # Project documentation
+├── PRIVACY.md            # Privacy policy
+├── TERMS.md              # Terms of service
+├── LICENSE_REPORT.md     # License compliance report
+├── .env.example          # Environment variables template
+├── static/               # Static assets
+│   ├── css/
+│   │   └── styles.css    # Main stylesheet
+│   ├── fplogo.png        # Application logo
+│   ├── sw.js             # Service worker
+│   └── uploads/          # User uploaded files
+│       └── avatars/      # User avatar images
+├── templates/            # Jinja2 templates
+│   ├── base.html         # Base template
+│   ├── index.html        # Home page
+│   ├── login.html        # Login page
+│   ├── profile.html      # User profile
+│   ├── privacy.html      # Privacy policy page
+│   └── terms.html        # Terms of service page
+├── docs/                 # Sphinx documentation
+│   ├── source/
+│   │   ├── conf.py       # Sphinx configuration
+│   │   ├── index.rst     # Documentation index
+│   │   └── *.rst         # Documentation pages
+│   └── build/            # Built documentation
+├── stories/              # Storybook component stories
+│   ├── UploadCard.stories.js
+│   └── ImageCard.stories.js
+└── .storybook/           # Storybook configuration
+    ├── main.js
+    └── preview.js
+</pre></div>
+</div>
+</section>
+<section id="development-environment-setup">
+<h2>Development Environment Setup<a class="headerlink" href="#development-environment-setup" title="Permalink to this heading"></a></h2>
+<section id="prerequisites">
+<h3>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Python 3.9+</p></li>
+<li><p>Node.js 18+ (for Storybook)</p></li>
+<li><p>uv package manager</p></li>
+<li><p>Git</p></li>
+</ul>
+</section>
+<section id="initial-setup">
+<h3>Initial Setup<a class="headerlink" href="#initial-setup" title="Permalink to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Clone the repository</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">&lt;</span><span class="n">repository</span><span class="o">-</span><span class="n">url</span><span class="o">&gt;</span>
+<span class="n">cd</span> <span class="n">fentpic</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Set up Python environment</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">uv</span> <span class="n">sync</span> <span class="o">--</span><span class="n">extra</span> <span class="n">dev</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Install Node.js dependencies</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">install</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Create environment file</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cp</span> <span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">example</span> <span class="o">.</span><span class="n">env</span>
+<span class="c1"># Edit .env with your configuration</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Initialize database</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">uv</span> <span class="n">run</span> <span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;from app import init_db; init_db()&quot;</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="development-workflow">
+<h2>Development Workflow<a class="headerlink" href="#development-workflow" title="Permalink to this heading"></a></h2>
+<section id="starting-development-server">
+<h3>Starting Development Server<a class="headerlink" href="#starting-development-server" title="Permalink to this heading"></a></h3>
+<p><strong>Flask Application:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Development mode with hot reload</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">FLASK_ENV</span><span class="o">=</span>development
+<span class="nb">export</span><span class="w"> </span><span class="nv">FLASK_DEBUG</span><span class="o">=</span><span class="m">1</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>app.py
+</pre></div>
+</div>
+<p><strong>Storybook (Component Development):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm<span class="w"> </span>run<span class="w"> </span>storybook
+</pre></div>
+</div>
+<p><strong>Documentation (Sphinx):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docs
+uv<span class="w"> </span>run<span class="w"> </span>sphinx-build<span class="w"> </span>-b<span class="w"> </span>html<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build
+<span class="c1"># Or use auto-rebuild</span>
+uv<span class="w"> </span>run<span class="w"> </span>sphinx-autobuild<span class="w"> </span><span class="nb">source</span><span class="w"> </span>build
+</pre></div>
+</div>
+</section>
+<section id="code-style-and-standards">
+<h3>Code Style and Standards<a class="headerlink" href="#code-style-and-standards" title="Permalink to this heading"></a></h3>
+<p><strong>Python:</strong></p>
+<ul class="simple">
+<li><p>Follow PEP 8 style guide</p></li>
+<li><p>Use type hints where appropriate</p></li>
+<li><p>Document functions with docstrings</p></li>
+<li><p>Maximum line length: 88 characters</p></li>
+</ul>
+<p><strong>JavaScript:</strong></p>
+<ul class="simple">
+<li><p>Use ES6+ features</p></li>
+<li><p>Follow Airbnb style guide</p></li>
+<li><p>Use JSDoc for documentation</p></li>
+<li><p>Prefer const/let over var</p></li>
+</ul>
+<p><strong>HTML/CSS:</strong></p>
+<ul class="simple">
+<li><p>Use semantic HTML5 elements</p></li>
+<li><p>Follow BEM naming convention for CSS</p></li>
+<li><p>Mobile-first responsive design</p></li>
+<li><p>Ensure WCAG 2.1 AA compliance</p></li>
+</ul>
+</section>
+</section>
+<section id="testing">
+<h2>Testing<a class="headerlink" href="#testing" title="Permalink to this heading"></a></h2>
+<section id="running-tests">
+<h3>Running Tests<a class="headerlink" href="#running-tests" title="Permalink to this heading"></a></h3>
+<p><strong>Python Tests:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>pytest
+
+<span class="c1"># With coverage</span>
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>app
+</pre></div>
+</div>
+<p><strong>Component Tests (Storybook):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>npm<span class="w"> </span>run<span class="w"> </span>test-storybook
+</pre></div>
+</div>
+<p><strong>License Compliance:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>uv<span class="w"> </span>run<span class="w"> </span>pip-licenses<span class="w"> </span>--format<span class="o">=</span>markdown<span class="w"> </span>&gt;<span class="w"> </span>LICENSE_REPORT.md
+</pre></div>
+</div>
+</section>
+<section id="test-structure">
+<h3>Test Structure<a class="headerlink" href="#test-structure" title="Permalink to this heading"></a></h3>
+<p><strong>Unit Tests:</strong></p>
+<ul class="simple">
+<li><p>Test individual functions and methods</p></li>
+<li><p>Mock external dependencies</p></li>
+<li><p>Focus on edge cases and error handling</p></li>
+</ul>
+<p><strong>Integration Tests:</strong></p>
+<ul class="simple">
+<li><p>Test API endpoints</p></li>
+<li><p>Test database operations</p></li>
+<li><p>Test authentication flows</p></li>
+</ul>
+<p><strong>Component Tests:</strong></p>
+<ul class="simple">
+<li><p>Test component rendering</p></li>
+<li><p>Test user interactions</p></li>
+<li><p>Test accessibility features</p></li>
+</ul>
+</section>
+</section>
+<section id="database-management">
+<h2>Database Management<a class="headerlink" href="#database-management" title="Permalink to this heading"></a></h2>
+<section id="schema-changes">
+<h3>Schema Changes<a class="headerlink" href="#schema-changes" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Modify</strong> <code class="docutils literal notranslate"><span class="pre">schema.sql</span></code></p></li>
+<li><p><strong>Create migration script</strong> (if needed)</p></li>
+<li><p><strong>Test migration</strong> on development database</p></li>
+<li><p><strong>Document changes</strong> in commit message</p></li>
+</ol>
+<p><strong>Example Migration:</strong></p>
+<div class="highlight-sql notranslate"><div class="highlight"><pre><span></span><span class="c1">-- Add new column to images table</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">images</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">description</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">;</span>
+</pre></div>
+</div>
+</section>
+<section id="backup-and-recovery">
+<h3>Backup and Recovery<a class="headerlink" href="#backup-and-recovery" title="Permalink to this heading"></a></h3>
+<p><strong>Create Backup:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sqlite3<span class="w"> </span>database.db<span class="w"> </span><span class="s2">&quot;.backup backup_</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span><span class="s2">.db&quot;</span>
+</pre></div>
+</div>
+<p><strong>Restore Backup:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sqlite3<span class="w"> </span>database.db<span class="w"> </span><span class="s2">&quot;.restore backup_20250704.db&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="api-development">
+<h2>API Development<a class="headerlink" href="#api-development" title="Permalink to this heading"></a></h2>
+<section id="adding-new-endpoints">
+<h3>Adding New Endpoints<a class="headerlink" href="#adding-new-endpoints" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Define route</strong> in <code class="docutils literal notranslate"><span class="pre">app.py</span></code></p></li>
+<li><p><strong>Add OpenAPI specification</strong> in <code class="docutils literal notranslate"><span class="pre">get_api_spec()</span></code></p></li>
+<li><p><strong>Implement request validation</strong></p></li>
+<li><p><strong>Add comprehensive error handling</strong></p></li>
+<li><p><strong>Write tests</strong></p></li>
+<li><p><strong>Update documentation</strong></p></li>
+</ol>
+<p><strong>Example Endpoint:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;/api/example&#39;</span><span class="p">,</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">api_example</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Example API endpoint&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s1">&#39;user_id&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Authentication required&quot;</span><span class="p">}),</span> <span class="mi">401</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">get_json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Invalid JSON&quot;</span><span class="p">}),</span> <span class="mi">400</span>
+
+    <span class="c1"># Process request</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">jsonify</span><span class="p">({</span><span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">result</span><span class="p">}),</span> <span class="mi">200</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h3>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this heading"></a></h3>
+<p><strong>Consistent Error Format:</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;error&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Human-readable error message&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">400</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;details&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Additional error context&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>HTTP Status Codes:</strong></p>
+<ul class="simple">
+<li><p>200: Success</p></li>
+<li><p>400: Bad Request</p></li>
+<li><p>401: Unauthorized</p></li>
+<li><p>403: Forbidden</p></li>
+<li><p>404: Not Found</p></li>
+<li><p>429: Too Many Requests</p></li>
+<li><p>500: Internal Server Error</p></li>
+</ul>
+</section>
+</section>
+<section id="frontend-development">
+<h2>Frontend Development<a class="headerlink" href="#frontend-development" title="Permalink to this heading"></a></h2>
+<section id="component-development">
+<h3>Component Development<a class="headerlink" href="#component-development" title="Permalink to this heading"></a></h3>
+<p><strong>Creating New Components:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Design component</strong> in Figma/Sketch</p></li>
+<li><p><strong>Create HTML/CSS</strong> structure</p></li>
+<li><p><strong>Add JavaScript</strong> functionality</p></li>
+<li><p><strong>Create Storybook story</strong></p></li>
+<li><p><strong>Test accessibility</strong></p></li>
+<li><p><strong>Document component</strong></p></li>
+</ol>
+<p><strong>Component Structure:</strong></p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// Component story template</span>
+<span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Components/ComponentName&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">argTypes</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">property</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">control</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;type&#39;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;Property description&#39;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="nx">createComponent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">args</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c1">// Component creation logic</span>
+<span class="p">};</span>
+
+<span class="k">export</span><span class="w"> </span><span class="kd">const</span><span class="w"> </span><span class="nx">Default</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">render</span><span class="o">:</span><span class="w"> </span><span class="nx">createComponent</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">args</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Default properties</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+</section>
+<section id="styling-guidelines">
+<h3>Styling Guidelines<a class="headerlink" href="#styling-guidelines" title="Permalink to this heading"></a></h3>
+<p><strong>CSS Custom Properties:</strong></p>
+<div class="highlight-css notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">component</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--surface-color</span><span class="p">);</span>
+<span class="w">  </span><span class="k">color</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--text-primary</span><span class="p">);</span>
+<span class="w">  </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--border-color</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Responsive Design:</strong></p>
+<div class="highlight-css notranslate"><div class="highlight"><pre><span></span><span class="p">.</span><span class="nc">component</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c">/* Mobile first */</span>
+<span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">rem</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="p">@</span><span class="k">media</span><span class="w"> </span><span class="o">(</span><span class="nt">min-width</span><span class="o">:</span><span class="w"> </span><span class="nt">768px</span><span class="o">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">.</span><span class="nc">component</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="kt">rem</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="security-considerations">
+<h2>Security Considerations<a class="headerlink" href="#security-considerations" title="Permalink to this heading"></a></h2>
+<section id="authentication">
+<h3>Authentication<a class="headerlink" href="#authentication" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Session-based authentication</p></li>
+<li><p>CSRF protection enabled</p></li>
+<li><p>Secure cookie settings</p></li>
+<li><p>OAuth2 integration</p></li>
+</ul>
+</section>
+<section id="file-upload-security">
+<h3>File Upload Security<a class="headerlink" href="#file-upload-security" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>File type validation (magic numbers)</p></li>
+<li><p>File size limits</p></li>
+<li><p>Filename sanitization</p></li>
+<li><p>Virus scanning (planned)</p></li>
+</ul>
+</section>
+<section id="data-protection">
+<h3>Data Protection<a class="headerlink" href="#data-protection" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Input validation and sanitization</p></li>
+<li><p>SQL injection prevention (parameterized queries)</p></li>
+<li><p>XSS protection (template escaping)</p></li>
+<li><p>HTTPS enforcement (production)</p></li>
+</ul>
+</section>
+</section>
+<section id="deployment">
+<h2>Deployment<a class="headerlink" href="#deployment" title="Permalink to this heading"></a></h2>
+<section id="development-deployment">
+<h3>Development Deployment<a class="headerlink" href="#development-deployment" title="Permalink to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Local development</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>app.py
+</pre></div>
+</div>
+</section>
+<section id="production-deployment">
+<h3>Production Deployment<a class="headerlink" href="#production-deployment" title="Permalink to this heading"></a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using Waitress</span>
+uv<span class="w"> </span>run<span class="w"> </span>waitress-serve<span class="w"> </span>--host<span class="o">=</span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="o">=</span><span class="m">5000</span><span class="w"> </span>app:app
+
+<span class="c1"># Using Gunicorn</span>
+uv<span class="w"> </span>run<span class="w"> </span>gunicorn<span class="w"> </span>--bind<span class="w"> </span><span class="m">0</span>.0.0.0:5000<span class="w"> </span>--workers<span class="w"> </span><span class="m">4</span><span class="w"> </span>app:app
+</pre></div>
+</div>
+</section>
+<section id="docker-deployment">
+<h3>Docker Deployment<a class="headerlink" href="#docker-deployment" title="Permalink to this heading"></a></h3>
+<div class="highlight-dockerfile notranslate"><div class="highlight"><pre><span></span><span class="k">FROM</span><span class="w"> </span><span class="s">python:3.11-slim</span>
+
+<span class="k">WORKDIR</span><span class="w"> </span><span class="s">/app</span>
+<span class="k">COPY</span><span class="w"> </span>.<span class="w"> </span>.
+
+<span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>uv
+<span class="k">RUN</span><span class="w"> </span>uv<span class="w"> </span>sync
+
+<span class="k">EXPOSE</span><span class="w"> </span><span class="s">5000</span>
+<span class="k">CMD</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;uv&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;run&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;waitress-serve&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--host=0.0.0.0&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--port=5000&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;app:app&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="environment-variables">
+<h3>Environment Variables<a class="headerlink" href="#environment-variables" title="Permalink to this heading"></a></h3>
+<p><strong>Production Settings:</strong></p>
+<div class="highlight-env notranslate"><div class="highlight"><pre><span></span>FLASK_ENV=production
+SECRET_KEY=secure-random-key
+SESSION_COOKIE_SECURE=True
+SESSION_COOKIE_HTTPONLY=True
+SESSION_COOKIE_SAMESITE=Strict
+</pre></div>
+</div>
+</section>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this heading"></a></h2>
+<section id="git-workflow">
+<h3>Git Workflow<a class="headerlink" href="#git-workflow" title="Permalink to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Create feature branch</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">checkout</span> <span class="o">-</span><span class="n">b</span> <span class="n">feature</span><span class="o">/</span><span class="n">amazing</span><span class="o">-</span><span class="n">feature</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Make changes and commit</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">add</span> <span class="o">.</span>
+<span class="n">git</span> <span class="n">commit</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;Add amazing feature&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Push and create PR</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">feature</span><span class="o">/</span><span class="n">amazing</span><span class="o">-</span><span class="n">feature</span>
+</pre></div>
+</div>
+</li>
+</ol>
+<p><strong>Commit Message Format:</strong></p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>type(scope): description
+
+Longer description if needed
+
+Fixes #123
+</pre></div>
+</div>
+<p><strong>Types:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">feat</span></code>: New feature</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fix</span></code>: Bug fix</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs</span></code>: Documentation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">style</span></code>: Code style changes</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refactor</span></code>: Code refactoring</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test</span></code>: Adding tests</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">chore</span></code>: Maintenance tasks</p></li>
+</ul>
+</section>
+<section id="code-review-process">
+<h3>Code Review Process<a class="headerlink" href="#code-review-process" title="Permalink to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Self-review</strong> code before submitting</p></li>
+<li><p><strong>Ensure tests pass</strong> and coverage is maintained</p></li>
+<li><p><strong>Update documentation</strong> if needed</p></li>
+<li><p><strong>Request review</strong> from maintainers</p></li>
+<li><p><strong>Address feedback</strong> and update PR</p></li>
+<li><p><strong>Merge</strong> after approval</p></li>
+</ol>
+</section>
+<section id="pull-request-template">
+<h3>Pull Request Template<a class="headerlink" href="#pull-request-template" title="Permalink to this heading"></a></h3>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>## Description
+Brief description of changes
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Documentation update
+- [ ] Refactoring
+
+## Testing
+- [ ] Unit tests pass
+- [ ] Integration tests pass
+- [ ] Manual testing completed
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-review completed
+- [ ] Documentation updated
+- [ ] No breaking changes
+</pre></div>
+</div>
+</section>
+</section>
+<section id="release-process">
+<h2>Release Process<a class="headerlink" href="#release-process" title="Permalink to this heading"></a></h2>
+<section id="version-management">
+<h3>Version Management<a class="headerlink" href="#version-management" title="Permalink to this heading"></a></h3>
+<p><strong>Semantic Versioning (SemVer):</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MAJOR.MINOR.PATCH</span></code></p></li>
+<li><p>Major: Breaking changes</p></li>
+<li><p>Minor: New features (backward compatible)</p></li>
+<li><p>Patch: Bug fixes</p></li>
+</ul>
+<p><strong>Release Steps:</strong></p>
+<ol class="arabic">
+<li><p><strong>Update version</strong> in <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code></p></li>
+<li><p><strong>Update CHANGELOG.md</strong></p></li>
+<li><p><strong>Create release tag</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">tag</span> <span class="o">-</span><span class="n">a</span> <span class="n">v1</span><span class="mf">.0.1</span> <span class="o">-</span><span class="n">m</span> <span class="s2">&quot;Release v1.0.1&quot;</span>
+<span class="n">git</span> <span class="n">push</span> <span class="n">origin</span> <span class="n">v1</span><span class="mf">.0.1</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Build and publish</strong> (if applicable)</p></li>
+<li><p><strong>Deploy to production</strong></p></li>
+</ol>
+</section>
+<section id="documentation-updates">
+<h3>Documentation Updates<a class="headerlink" href="#documentation-updates" title="Permalink to this heading"></a></h3>
+<p><strong>After each release:</strong></p>
+<ol class="arabic">
+<li><p><strong>Update API documentation</strong></p></li>
+<li><p><strong>Rebuild Sphinx docs</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">docs</span>
+<span class="n">uv</span> <span class="n">run</span> <span class="n">sphinx</span><span class="o">-</span><span class="n">build</span> <span class="o">-</span><span class="n">b</span> <span class="n">html</span> <span class="n">source</span> <span class="n">build</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Update component library</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">npm</span> <span class="n">run</span> <span class="n">build</span><span class="o">-</span><span class="n">storybook</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Publish documentation</strong> to GitHub Pages</p></li>
+</ol>
+</section>
+</section>
+<section id="monitoring-and-maintenance">
+<h2>Monitoring and Maintenance<a class="headerlink" href="#monitoring-and-maintenance" title="Permalink to this heading"></a></h2>
+<section id="error-tracking">
+<h3>Error Tracking<a class="headerlink" href="#error-tracking" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Monitor application logs</p></li>
+<li><p>Track error rates and patterns</p></li>
+<li><p>Set up alerting for critical issues</p></li>
+</ul>
+</section>
+<section id="performance-monitoring">
+<h3>Performance Monitoring<a class="headerlink" href="#performance-monitoring" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Database query performance</p></li>
+<li><p>File upload speeds</p></li>
+<li><p>API response times</p></li>
+<li><p>Resource usage</p></li>
+</ul>
+</section>
+<section id="security-updates">
+<h3>Security Updates<a class="headerlink" href="#security-updates" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Regular dependency updates</p></li>
+<li><p>Security vulnerability scanning</p></li>
+<li><p>Penetration testing (periodic)</p></li>
+<li><p>Access log monitoring</p></li>
+</ul>
+</section>
+<section id="backup-strategy">
+<h3>Backup Strategy<a class="headerlink" href="#backup-strategy" title="Permalink to this heading"></a></h3>
+<ul class="simple">
+<li><p>Daily database backups</p></li>
+<li><p>Weekly full system backups</p></li>
+<li><p>Off-site backup storage</p></li>
+<li><p>Backup restoration testing</p></li>
+</ul>
+</section>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Permalink to this heading"></a></h2>
+<p><strong>Resources:</strong></p>
+<ul class="simple">
+<li><p>Project documentation: <code class="docutils literal notranslate"><span class="pre">/docs</span></code></p></li>
+<li><p>API documentation: <code class="docutils literal notranslate"><span class="pre">/api/docs</span></code></p></li>
+<li><p>Component library: Storybook</p></li>
+<li><p>Issue tracker: GitHub Issues</p></li>
+</ul>
+<p><strong>Communication:</strong></p>
+<ul class="simple">
+<li><p>GitHub Discussions for questions</p></li>
+<li><p>Discord/Slack for real-time chat</p></li>
+<li><p>Email for security issues</p></li>
+</ul>
+<p><strong>Support:</strong></p>
+<ul class="simple">
+<li><p>Community support via GitHub</p></li>
+<li><p>Commercial support available</p></li>
+<li><p>Priority support for sponsors</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="components.html" class="btn btn-neutral float-left" title="UI Components" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, xxanqw.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
